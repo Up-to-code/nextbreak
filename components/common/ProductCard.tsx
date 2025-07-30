@@ -1,8 +1,10 @@
 import Image from 'next/image'
 import React from 'react'
+import Link from 'next/link'
 
 export default function ProductCard() {
   return (
+    <Link href="/product/1">
     <div className="max-w-sm border-4 border-black rounded-none bg-white  ">
       {/* Product Image */}
       <div className="relative h-64 w-full border-b-4 border-black">
@@ -52,5 +54,6 @@ export default function ProductCard() {
         </div>
       </div>
     </div>
+    </Link>
   )
 }

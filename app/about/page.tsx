@@ -1,75 +1,90 @@
-'use client'
+"use client"
+import React from 'react';
+import { useRouter } from 'next/navigation';
 
-import React from 'react'
-import Link from 'next/link'
+const AboutPage = () => {
+  const router = useRouter();
 
-export default function AboutPage() {
-  return (
-    <main className="min-h-screen bg-[#f9f9f9] text-black px-6 py-12 md:px-12 font-mono">
-      <div className="max-w-5xl mx-auto border-4 border-black p-8 md:p-12 bg-white shadow-[8px_8px_0px_0px_black]">
+  return (  
+    <div className="relative flex flex-col items-center justify-center min-h-[calc(100vh-80px)] px-4 py-12 sm:px-6 lg:px-8">
+      {/* Background container with subtle pattern */}
+      <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]" />
+      
+      {/* Content card with consistent not-found styling */}
+      <div className="relative w-full max-w-2xl bg-white/90 backdrop-blur-sm rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+        {/* Decorative header */}
+        <div className="bg-black px-6 py-4">
+          <h1 className="text-2xl font-semibold text-white text-center">
+            About Our Company
+          </h1>
+        </div>
 
-        {/* Heading */}
-        <h1 className="text-5xl md:text-7xl font-bold uppercase mb-4 border-b-4 border-black pb-3 leading-tight">
-          Who We Are
-        </h1>
-
-        {/* Intro Text */}
-        <p className="text-lg md:text-xl leading-relaxed mb-10">
-          We’re a small, passionate team building brutally honest digital experiences.
-          No trends. No noise. Just design with guts, function with clarity, and code that doesn’t lie.
-        </p>
-
-        {/* Grid Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-          {/* Vision Block */}
-          <div className="p-6 bg-[#eaeaea] border-4 border-black">
-            <h2 className="text-2xl font-bold uppercase mb-2">Our Vision</h2>
+        {/* Main content */}
+        <div className="p-6 sm:p-8 space-y-6">
+          <div className="prose prose-sm sm:prose-base max-w-none text-gray-700">
             <p>
-              Redefining modern digital by rejecting minimalism’s sterility. We make designs that speak loud, code that speaks clearer.
+              We&apos;re a passionate team dedicated to creating simple, effective solutions that make a difference in people&apos;s everyday lives.
             </p>
-          </div>
-
-          {/* Team Block */}
-          <div className="p-6 bg-[#eaeaea] border-4 border-black">
-            <h2 className="text-2xl font-bold uppercase mb-2">The Team</h2>
+            
+            <h2 className="text-lg font-medium text-gray-900 mt-8 mb-4">Our Story</h2>
             <p>
-              Designers, devs, rebels. We’re not just building websites — we’re breaking the mold one component at a time.
+              Founded in 2020, we started as a small garage operation and have grown into a trusted brand serving customers worldwide, 
+              while maintaining our commitment to quality and innovation.
             </p>
+
+            <h2 className="text-lg font-medium text-gray-900 mt-8 mb-4">Our Values</h2>
+            <ul className="space-y-3">
+              <li className="flex items-start">
+                <span className="flex-shrink-0 bg-gray-100 rounded-full p-1 mr-3">
+                  <svg className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </span>
+                <span>Quality craftsmanship</span>
+              </li>
+              <li className="flex items-start">
+                <span className="flex-shrink-0 bg-gray-100 rounded-full p-1 mr-3">
+                  <svg className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </span>
+                <span>Honest business practices</span>
+              </li>
+              <li className="flex items-start">
+                <span className="flex-shrink-0 bg-gray-100 rounded-full p-1 mr-3">
+                  <svg className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </span>
+                <span>Customer-first approach</span>
+              </li>
+            </ul>
+          </div>
+
+          {/* Action buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 pt-6">
+            <button
+              onClick={() => router.push('/')}
+              className="px-6 py-3 bg-black text-white text-sm font-medium rounded-md hover:bg-gray-800 transition-colors"
+            >
+              Back to Home
+            </button>
+            <button
+              onClick={() => router.push('/contact')}
+              className="px-6 py-3 border border-gray-300 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors"
+            >
+              Contact Us
+            </button>
           </div>
         </div>
-
-        {/* Brutalist Quote */}
-        <div className="border-4 border-black p-6 bg-yellow-300 text-black mb-12">
-          <p className="text-2xl font-bold uppercase">
-            “Good design is honest.”
-          </p>
-          <p className="mt-2 text-right">– Dieter Rams</p>
-        </div>
-
-        {/* Stats or Quick Facts */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center mb-12">
-          <div className="bg-[#f1f1f1] p-6 border-4 border-black">
-            <p className="text-4xl font-bold">8+</p>
-            <p className="uppercase text-sm">Years Building</p>
-          </div>
-          <div className="bg-[#f1f1f1] p-6 border-4 border-black">
-            <p className="text-4xl font-bold">200+</p>
-            <p className="uppercase text-sm">Projects Launched</p>
-          </div>
-          <div className="bg-[#f1f1f1] p-6 border-4 border-black">
-            <p className="text-4xl font-bold">∞</p>
-            <p className="uppercase text-sm">Ideas Daily</p>
-          </div>
-        </div>
-
-        {/* Back to Home */}
-        <Link
-          href="/"
-          className="inline-block px-6 py-3 border-4 border-black bg-white hover:bg-black hover:text-white transition-colors font-bold uppercase"
-        >
-          ← Back Home
-        </Link>
       </div>
-    </main>
-  )
-}
+
+      {/* Footer note */}
+      <p className="mt-8 text-sm text-gray-500">
+        © {new Date().getFullYear()} Our Company. All rights reserved.
+      </p>
+    </div>
+  );
+};
+
+export default AboutPage;

@@ -3,7 +3,7 @@ import React from 'react'
 
 export default function ProductCard() {
   return (
-    <div className="max-w-sm border-4 border-black rounded-none bg-white ">
+    <div className="max-w-sm border-4 border-black rounded-none bg-white  ">
       {/* Product Image */}
       <div className="relative h-64 w-full border-b-4 border-black">
         <Image 

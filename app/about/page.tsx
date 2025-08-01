@@ -1,90 +1,105 @@
-"use client"
-import React from 'react';
-import { useRouter } from 'next/navigation';
+'use client'
+
+import { useRouter } from 'next/navigation'
+import React from 'react'
 
 const AboutPage = () => {
-  const router = useRouter();
+  const router = useRouter()
+  const currentYear = new Date().getFullYear()
 
-  return (  
-    <div className="relative flex flex-col items-center justify-center min-h-[calc(100vh-80px)] px-4 py-12 sm:px-6 lg:px-8">
-      {/* Background container with subtle pattern */}
-      <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]" />
-      
-      {/* Content card with consistent not-found styling */}
-      <div className="relative w-full max-w-2xl bg-white/90 backdrop-blur-sm rounded-lg border border-gray-200 shadow-sm overflow-hidden">
-        {/* Decorative header */}
-        <div className="bg-black px-6 py-4">
-          <h1 className="text-2xl font-semibold text-white text-center">
+  return (
+    <div className="relative flex min-h-[calc(100vh-80px)] flex-col items-center justify-center bg-yellow-50 px-4 py-12">
+      {/* Content card with neo-brutalist styling */}
+      <div className="relative w-full max-w-2xl border-4 border-black bg-white shadow-[8px_8px_0_0_#000]">
+        {/* Header with bold typography */}
+        <header className="border-b-4 border-black bg-yellow-500 px-6 py-4">
+          <h1 className="text-center text-3xl font-black uppercase tracking-tight text-black">
             About Our Company
           </h1>
-        </div>
+        </header>
 
         {/* Main content */}
-        <div className="p-6 sm:p-8 space-y-6">
-          <div className="prose prose-sm sm:prose-base max-w-none text-gray-700">
-            <p>
+        <main className="space-y-6 p-6 sm:p-8">
+          <div className="prose prose-sm max-w-none text-black sm:prose-base">
+            <p className="font-medium">
               We&apos;re a passionate team dedicated to creating simple, effective solutions that make a difference in people&apos;s everyday lives.
             </p>
             
-            <h2 className="text-lg font-medium text-gray-900 mt-8 mb-4">Our Story</h2>
-            <p>
+            <h2 className="mb-4 mt-8 text-xl font-black uppercase text-black">Our Story</h2>
+            <p className="font-medium">
               Founded in 2020, we started as a small garage operation and have grown into a trusted brand serving customers worldwide, 
               while maintaining our commitment to quality and innovation.
             </p>
 
-            <h2 className="text-lg font-medium text-gray-900 mt-8 mb-4">Our Values</h2>
-            <ul className="space-y-3">
-              <li className="flex items-start">
-                <span className="flex-shrink-0 bg-gray-100 rounded-full p-1 mr-3">
-                  <svg className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                </span>
-                <span>Quality craftsmanship</span>
-              </li>
-              <li className="flex items-start">
-                <span className="flex-shrink-0 bg-gray-100 rounded-full p-1 mr-3">
-                  <svg className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                </span>
-                <span>Honest business practices</span>
-              </li>
-              <li className="flex items-start">
-                <span className="flex-shrink-0 bg-gray-100 rounded-full p-1 mr-3">
-                  <svg className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                </span>
-                <span>Customer-first approach</span>
-              </li>
+            <h2 className="mb-4 mt-8 text-xl font-black uppercase text-black">Our Values</h2>
+            <ul className="space-y-4">
+              {[
+                "Quality craftsmanship",
+                "Honest business practices",
+                "Customer-first approach"
+              ].map((value) => (
+                <li key={value} className="flex items-start">
+                  <span className="mr-3 flex-shrink-0 rounded-full border-2 border-black bg-yellow-400 p-1">
+                    <CheckIcon />
+                  </span>
+                  <span className="font-bold">{value}</span>
+                </li>
+              ))}
             </ul>
           </div>
 
-          {/* Action buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 pt-6">
-            <button
+          {/* Action buttons with brutalist styling */}
+          <div className="flex flex-col gap-4 pt-6 sm:flex-row">
+            <Button 
               onClick={() => router.push('/')}
-              className="px-6 py-3 bg-black text-white text-sm font-medium rounded-md hover:bg-gray-800 transition-colors"
+              variant="primary"
             >
               Back to Home
-            </button>
-            <button
+            </Button>
+            <Button 
               onClick={() => router.push('/contact')}
-              className="px-6 py-3 border border-gray-300 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors"
+              variant="secondary"
             >
               Contact Us
-            </button>
+            </Button>
           </div>
-        </div>
+        </main>
       </div>
 
-      {/* Footer note */}
-      <p className="mt-8 text-sm text-gray-500">
-        © {new Date().getFullYear()} Our Company. All rights reserved.
-      </p>
+      {/* Footer */}
+      <footer className="mt-8 text-sm font-bold text-black">
+        © {currentYear} Our Company. All rights reserved.
+      </footer>
     </div>
-  );
-};
+  )
+}
 
-export default AboutPage;
+// Reusable components with brutalist styling
+const CheckIcon = () => (
+  <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+  </svg>
+)
+
+const Button = ({ 
+  children, 
+  onClick, 
+  variant = 'primary' 
+}: {
+  children: React.ReactNode
+  onClick: () => void
+  variant?: 'primary' | 'secondary'
+}) => (
+  <button
+    onClick={onClick}
+    className={`px-6 py-3 text-sm font-black uppercase tracking-wide transition-all hover:shadow-none border-2 border-black shadow-[4px_4px_0_0_#000] active:translate-x-1 active:translate-y-1 active:shadow-none ${
+      variant === 'primary' 
+        ? 'bg-green-400 text-black hover:bg-green-500' 
+        : 'bg-white text-black hover:bg-gray-200'
+    }`}
+  >
+    {children}
+  </button>
+)
+
+export default AboutPage

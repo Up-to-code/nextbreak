@@ -6,123 +6,40 @@ const PoliciesPage = () => {
   const router = useRouter();
 
   return (
-    <div className="relative flex flex-col items-center min-h-[calc(100vh-80px)] px-4 py-12 sm:px-6 lg:px-8 ">
-      {/* Background pattern */}
-      <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]" />
-
+    <div className="min-h-screen p-4 flex flex-col items-center bg-yellow-50">
       {/* Main content container */}
-      <div className="relative w-full max-w-4xl bg-white/90 backdrop-blur-sm rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+      <div className="w-full max-w-2xl border-4 border-black bg-white p-6 shadow-[8px_8px_0_0_#000] mt-12">
         {/* Header */}
-        <div className="bg-black px-6 py-4">
-          <h1 className="text-2xl font-semibold text-white text-center">
-            Policies & Terms
-          </h1>
-        </div>
+        <h1 className="text-3xl font-black uppercase border-b-4 border-black pb-2 mb-4">
+          POLICIES
+        </h1>
+        
+        {/* Description */}
+        <p className="text-lg font-medium mb-8">
+          Our policies are simple: we respect your privacy and provide transparent terms of service.
+          Contact us if you have any questions.
+        </p>
 
-        {/* Content with tabs */}
-        <div className="p-6 sm:p-8">
-          <div className="flex border-b border-gray-200 mb-6">
-            <button className="px-4 py-2 font-medium text-gray-900 border-b-2 border-black">
-              Privacy Policy
-            </button>
-            <button className="px-4 py-2 font-medium text-gray-500 hover:text-gray-700">
-              Terms of Service
-            </button>
-          </div>
-
-          <div className="prose prose-sm sm:prose-base max-w-none text-gray-700 space-y-6">
-            <section>
-              <h2 className="text-lg font-medium text-gray-900">
-                1. Information We Collect
-              </h2>
-              <p>
-                We collect information you provide directly, including name,
-                email, and payment details when you make a purchase. We
-                automatically collect usage data through cookies and similar
-                technologies.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-lg font-medium text-gray-900">
-                2. How We Use Information
-              </h2>
-              <p>We use your information to:</p>
-              <ul className="list-disc pl-5 space-y-1">
-                <li>Provide and maintain our services</li>
-                <li>Process transactions</li>
-                <li>Improve user experience</li>
-                <li>Communicate with you</li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-lg font-medium text-gray-900">
-                3. Data Sharing
-              </h2>
-              <p>
-                We do not sell your personal data. We may share information
-                with:
-              </p>
-              <ul className="list-disc pl-5 space-y-1">
-                <li>Payment processors</li>
-                <li>Service providers (hosting, analytics)</li>
-                <li>Legal authorities when required</li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-lg font-medium text-gray-900">
-                4. Your Rights
-              </h2>
-              <p>
-                You may request access, correction, or deletion of your personal
-                data by contacting us at privacy@yourcompany.com.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-lg font-medium text-gray-900">
-                5. Changes to This Policy
-              </h2>
-              <p>
-                We may update this policy periodically. The updated version will
-                be posted on this page with a new effective date.
-              </p>
-            </section>
-
-            <div className="pt-6 mt-6 border-t border-gray-200 text-sm">
-              <p>
-                <strong>Effective Date:</strong>{" "}
-                {new Date().toLocaleDateString()}
-              </p>
-              <p>
-                <strong>Last Updated:</strong> {new Date().toLocaleDateString()}
-              </p>
-            </div>
-          </div>
-
-          {/* Action buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 pt-8">
-            <button
-              onClick={() => router.push("/")}
-              className="px-6 py-3 bg-black text-white text-sm font-medium rounded-md hover:bg-gray-800 transition-colors"
-            >
-              Back to Home
-            </button>
-            <button
-              onClick={() => router.push("/contact")}
-              className="px-6 py-3 border border-gray-300 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors"
-            >
-              Contact for Questions
-            </button>
-          </div>
+        {/* Action buttons */}
+        <div className="flex gap-4">
+          <button
+            onClick={() => router.push("/")}
+            className="px-6 py-3 bg-black text-white font-bold border-2 border-black shadow-[4px_4px_0_0_#000] hover:shadow-none"
+          >
+            HOME
+          </button>
+          <button
+            onClick={() => router.push("/contact")}
+            className="px-6 py-3 bg-white text-black font-bold border-2 border-black shadow-[4px_4px_0_0_#000] hover:shadow-none"
+          >
+            CONTACT
+          </button>
         </div>
       </div>
 
       {/* Footer */}
-      <p className="mt-8 text-sm text-gray-500">
-        © {new Date().getFullYear()} Your Company. All rights reserved.
+      <p className="mt-8 text-sm font-bold">
+        © {new Date().getFullYear()} COMPANY NAME
       </p>
     </div>
   );

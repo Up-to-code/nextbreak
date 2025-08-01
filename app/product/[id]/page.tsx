@@ -1,181 +1,208 @@
-
-
-
-
-// Main Component: NeoBrutalProductPage.tsx
-"use client"
-import { Breadcrumbs } from '@/components/product/Breadcrumbs';
-import { CustomerReviews } from '@/components/product/CustomerReviews';
-import { MobileBottomBar } from '@/components/product/MobileBottomBar';
-import { ProductActions } from '@/components/product/ProductActions';
-import { ProductFeatures } from '@/components/product/ProductFeatures';
-import { ProductGallery } from '@/components/product/ProductGallery';
-import { QuantitySelector } from '@/components/product/QuantitySelector';
-import { RelatedProducts } from '@/components/product/RelatedProducts';
-import { StarRating } from '@/components/product/StarRating';
-import { Product, RelatedProduct } from '@/components/types/product';
-import React, { useState, useEffect } from 'react';
-
+"use client";
+import { getProductById } from "../../admin/actions/product";
+import { useParams, useRouter } from "next/navigation";
+import React, { useState, useEffect } from "react";
+import { Product } from "@prisma/client";
+import { useCartStore } from "@/store/cartStore";
+import { ProductGallery } from "@/components/product/ProductGallery";
 
 const NeoBrutalProductPage: React.FC = () => {
   const [quantity, setQuantity] = useState(1);
   const [isAddedToCart, setIsAddedToCart] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState(0);
 
-  const product: Product = {
-    name: "MINIMALIST CHAIR",
-    price: 89,
-    originalPrice: 120,
-    description: "A clean, functional chair designed for modern living spaces. Crafted with sustainability in mind, each piece is made to last generations while providing exceptional comfort.",
-    details: {
-      dimensions: "20″W × 22″D × 32″H",
-      materials: "Solid oak wood, organic cotton upholstery",
-      weight: "15 lbs",
-      care: "Wipe clean with damp cloth",
-      assembly: "15-20 minutes",
-      warranty: "5 years limited"
-    },
-    features: [
-      "HANDCRAFTED JOINERY",
-      "NON-TOXIC FINISHES",
-      "ERGONOMIC DESIGN",
-      "SUSTAINABLE MATERIALS"
-    ],
-    colors: [
-      { id: 'oak', name: 'Natural Oak', hex: '#D1A783' },
-      { id: 'walnut', name: 'Dark Walnut', hex: '#3E2723' },
-      { id: 'white', name: 'Arctic White', hex: '#FFFFFF' }
-    ],
-    materials: [
-      { id: 'cotton', name: 'Organic Cotton' },
-      { id: 'linen', name: 'Premium Linen' },
-      { id: 'velvet', name: 'Recycled Velvet' }
-    ],
-    reviews: [
-      { rating: 5, name: "Alex J.", comment: "Perfect balance of comfort and style!", date: "2025-07-15" },
-      { rating: 4, name: "Sam T.", comment: "Love the design but assembly was tricky", date: "2025-06-22" },
-      { rating: 5, name: "Jordan K.", comment: "Worth every penny. Gets compliments daily!", date: "2025-07-01" }
-    ]
-  };
+  const params = useParams();
+  const router = useRouter();
+  const productId = params?.id as string;
+  const { addToCart } = useCartStore();
 
-  const productImages = [
-    '/api/placeholder/500/600?text=Chair+Front',
-    '/api/placeholder/500/600?text=Chair+Side',
-    '/api/placeholder/500/600?text=Chair+Angle',
-    '/api/placeholder/500/600?text=Chair+Detail'
-  ];
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        setLoading(true);
+        const data = await getProductById(productId);
+        if (data) {
+          setProduct(data);
+        } else {
+          setError("Product not found");
+        }
+      } catch (err) {
+        setError("Failed to load product");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const relatedProducts: RelatedProduct[] = [
-    { name: "MINIMALIST DESK", price: 249 },
-    { name: "MODERN SOFA", price: 899 },
-    { name: "SHELF UNIT", price: 149 },
-    { name: "COFFEE TABLE", price: 129 }
-  ];
+    if (productId) {
+      fetchProduct();
+    }
+  }, [productId]);
 
-  const breadcrumbItems = [
-    { label: "Home" },
-    { label: "Furniture" },
-    { label: "Chairs", active: true }
-  ];
-
-  // Check if mobile on mount and resize
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   const handleAddToCart = () => {
+    if (!product) return;
+
+    addToCart(
+      {
+        id: product.id,
+        name: product.title,
+        price: product.price,
+        image: product.images?.[0] || "",
+      },
+      quantity
+    );
+
     setIsAddedToCart(true);
-    // Add haptic feedback on mobile
-    if (navigator.vibrate) {
-      navigator.vibrate(100);
-    }
+    if (navigator.vibrate) navigator.vibrate(100);
     setTimeout(() => setIsAddedToCart(false), 3000);
   };
 
-  const incrementQuantity = () => {
-    if (quantity < 10) setQuantity(quantity + 1);
+  const handleBuyNow = () => {
+    handleAddToCart();
+    router.push("/checkout");
   };
 
-  const decrementQuantity = () => {
-    if (quantity > 1) setQuantity(quantity - 1);
+  const incrementQuantity = () => quantity < 10 && setQuantity(quantity + 1);
+  const decrementQuantity = () => quantity > 1 && setQuantity(quantity - 1);
+
+  const handleShare = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: product?.title,
+          text: `Check out this product: ${product?.title}`,
+          url: window.location.href,
+        });
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+      }
+    } catch (err) {
+      console.error("Sharing failed:", err);
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="border-4 border-black p-8 text-center">
+          <h2 className="text-2xl font-bold">LOADING PRODUCT...</h2>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !product) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="border-4 border-black p-8 text-center bg-red-100">
+          <h2 className="text-2xl font-bold">ERROR</h2>
+          <p className="mt-2">{error || "Product not available"}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen ">
+    <div className="min-h-screen bg-white">
       <div className="max-w-6xl mx-auto p-3 sm:p-6">
         <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-16">
           {/* Product Gallery */}
-          <ProductGallery images={productImages} productName={product.name} />
+          <ProductGallery images={product.images} productName={product.title} />
 
           {/* Product Info */}
           <div className="space-y-6 sm:space-y-8">
             <div>
-              <Breadcrumbs items={breadcrumbItems} />
-              
               <h1 className="text-4xl sm:text-5xl font-black text-black mb-3 tracking-wider">
-                {product.name}
+                {product.title}
               </h1>
-              
-              <div className="flex items-center space-x-4 mb-4">
-                <div className="flex items-center">
-                  <StarRating rating={4.8} />
-                  <span className="ml-2 font-bold text-sm">(42 reviews)</span>
-                </div>
-                <span className="text-sm font-bold text-green-700 bg-green-200 px-2 py-1 border-2 border-black">
-                  ★ BESTSELLER
-                </span>
-              </div>
-              
+
+
               <p className="text-lg font-bold text-black leading-relaxed mb-6">
                 {product.description}
               </p>
-              
-              <ProductFeatures features={product.features} />
             </div>
 
-            {/* Quantity and Action Buttons */}
+            {/* Price */}
+            <div className="text-3xl font-black text-black">
+              SAR {product.price.toFixed(2)}
+            </div>
+
+            {/* Quantity Selector */}
+            <div className="flex items-center space-x-4">
+              <span className="font-bold">Quantity:</span>
+              <div className="flex items-center border-2 border-black">
+                <button
+                  onClick={decrementQuantity}
+                  className="px-3 py-1 bg-gray-200 font-bold text-lg"
+                >
+                  -
+                </button>
+                <span className="px-4 font-bold">{quantity}</span>
+                <button
+                  onClick={incrementQuantity}
+                  className="px-3 py-1 bg-gray-200 font-bold text-lg"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
             <div className="space-y-4">
-              <QuantitySelector
-                quantity={quantity}
-                onIncrement={incrementQuantity}
-                onDecrement={decrementQuantity}
-              />
-              
-              <ProductActions
-                isAddedToCart={isAddedToCart}
-                onAddToCart={handleAddToCart}
-              />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <button
+                  onClick={handleAddToCart}
+                  disabled={isAddedToCart}
+                  className={`py-4 px-6 border-4 border-black font-black text-lg tracking-wider shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] ${
+                    isAddedToCart
+                      ? "bg-green-500 text-white"
+                      : "bg-yellow-400 hover:bg-yellow-300"
+                  }`}
+                >
+                  {isAddedToCart ? "✓ ADDED TO CART!" : "🛒 ADD TO CART"}
+                </button>
+                <button
+                  onClick={handleBuyNow}
+                  className="py-4 px-6 bg-black text-white border-4 border-black font-black text-lg tracking-wider shadow-[6px_6px_0px_0px_rgba(255,193,7,1)]"
+                >
+                  ⚡ BUY NOW
+                </button>
+              </div>
+
+ 
             </div>
           </div>
         </div>
-
-        {/* Product Details Section */}
-        <div className="mt-16 bg-white border-4 border-black p-6 sm:p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-          <h2 className="text-3xl font-black text-black mb-8 tracking-wider">PRODUCT DETAILS</h2>
-          
-          <CustomerReviews
-            reviews={product.reviews}
-            averageRating={4.8}
-            totalReviews={42}
-          />
-        </div>
-
-        {/* <RelatedProducts products={relatedProducts} /> */}
       </div>
 
-      {/* Sticky Mobile Bottom Bar */}
+      {/* Mobile Bottom Bar */}
       {isMobile && (
-        <MobileBottomBar
-          price={product.price}
-          quantity={quantity}
-          isAddedToCart={isAddedToCart}
-          onAddToCart={handleAddToCart}
-          onIncrement={incrementQuantity}
-          onDecrement={decrementQuantity}
-        />
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t-4 border-black p-4 shadow-[0_-4px_0px_0px_rgba(0,0,0,1)]">
+          <div className="flex justify-between items-center">
+            <div className="text-xl font-black">
+              SAR {product.price.toFixed(2)}
+            </div>
+            <button
+              onClick={handleAddToCart}
+              className={`py-3 px-6 border-4 border-black font-black ${
+                isAddedToCart ? "bg-green-500 text-white" : "bg-yellow-400"
+              }`}
+            >
+              {isAddedToCart ? "✓ ADDED" : "ADD TO CART"}
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );

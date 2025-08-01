@@ -3,78 +3,91 @@ import Image from 'next/image'
 import React from 'react'
 import Link from 'next/link'
 import { useCartStore } from '@/store/cartStore'
+import { Product } from '@prisma/client'
 
-interface Product {
-  id: number
-  name: string
-  price: number
-  image: string
-}
-
-
-export default function ProductCard({product} : {product: Product}) {
-  const {addToCart} = useCartStore()
+export default function ProductCard({ product }: { product: Product }) {
+  const { addToCart } = useCartStore()
+  
+  // Calculate points (5 points per SAR)
+  const points = Math.round(product.price * 5)
 
   return (
-   
-    <div className="max-w-sm border-4 border-black rounded-none bg-white  ">
+    <div className="max-w-sm border-4 border-black rounded-none bg-white transition-all hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1">
       {/* Product Image */}
       <Link href={`/product/${product.id}`}>
-      <div className="relative h-64 w-full border-b-4 border-black">
-        <Image 
-          src="/book.jpeg"
-          alt="Book Cover"
-          layout="fill"
-          objectFit="cover"
-          className="rounded-none"
-        />
-      </div>
+        <div className="relative h-64 w-full border-b-4 border-black">
+          {product.images?.length > 0 ? (
+            <Image 
+              src={product.images[0]}
+              alt={product.title}
+              layout="fill"
+              objectFit="cover"
+              className="rounded-none"
+            />
+          ) : (
+            <div className="bg-gray-200 border-2 border-dashed border-black w-full h-full flex items-center justify-center">
+              <span className="text-black font-bold">No Image</span>
+            </div>
+          )}
+        </div>
       </Link>
 
       {/* Product Info */}
       <div className="p-5">
         {/* Title */}
-        <h2 className="text-2xl font-extrabold text-black mb-3 uppercase tracking-tight">Book Title</h2>
+        <Link href={`/product/${product.id}`}>
+          <h2 className="text-2xl font-extrabold text-black mb-3 uppercase tracking-tight hover:underline">
+            {product.title}
+          </h2>
+        </Link>
         
         {/* Description */}
         <p className="text-black text-base mb-5 font-medium leading-tight border-b-4 border-black pb-4">
-          Short description with raw typography that doesn&apos;t care about line breaks.
+          {product.description.substring(0, 100)}
+          {product.description.length > 100 ? '...' : ''}
         </p>
         
         {/* Points */}
         <div className="mb-4">
           <span className="bg-yellow-300 text-black text-sm font-extrabold px-3 py-1 border-2 border-black">
-            🔥 500 POINTS
+            🔥 {points.toLocaleString()} POINTS
+          </span>
+          <span className="ml-2 text-sm font-bold text-black">
+            ({product.buyerCount} purchases)
           </span>
         </div>
         
         {/* Pricing */}
         <div className="flex items-center mb-6 gap-2">
-          <span className="text-3xl font-extrabold text-black">$100</span>
-          <span className="text-lg font-bold text-black line-through">$120</span>
-          <span className="text-sm font-extrabold bg-pink-400 text-black border-2 border-black px-2 py-0.5">
-            SAVE 17%
+          <span className="text-3xl font-extrabold text-black">
+            SAR {product.price.toFixed(2)}
           </span>
         </div>
         
         {/* Action Buttons */}
         <div className="flex gap-3">
-          <button className="flex-1 bg-white text-black font-extrabold py-3 px-4 border-4 border-black hover:bg-gray-200 hover:border-b-8 hover:border-r-8 hover:border-black transition-all" 
-          onClick={() => addToCart({
-            id: 1 + Math.floor(Math.random() * 100),
-            name: 'Book Title',
-            price: 100,
-            image: '/book.jpeg'
-          })}
+          <button 
+            className="flex-1 bg-white text-black font-extrabold py-3 px-4 border-4 border-black hover:bg-gray-200 hover:border-b-8 hover:border-r-8 hover:border-black transition-all"
+            onClick={(e) => {
+              e.preventDefault();
+              addToCart({
+                id: product.id,
+                name: product.title,
+                price: product.price,
+                image: product.images?.[0] || '/placeholder.jpg'
+              });
+            }}
           > 
             ADD TO CART
           </button>
-          <button className="flex-1 bg-green-400 text-black font-extrabold py-3 px-4 border-4 border-black hover:bg-green-500 hover:border-b-8 hover:border-r-8 hover:border-black transition-all">
-            BUY NOW
-          </button>
+          <Link 
+            href={`/product/${product.id}`}
+            className="flex-1 bg-green-400 text-black font-extrabold py-3 px-4 border-4 border-black text-center hover:bg-green-500 hover:border-b-8 hover:border-r-8 hover:border-black transition-all"
+          >
+            VIEW DETAILS
+          </Link>
         </div>
       </div>
     </div>
- 
   )
 }

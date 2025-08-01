@@ -3,6 +3,7 @@ import { Cairo } from "next/font/google";
 import "./globals.css";
 import Footer from "@/components/layout/Footer";
 import NavBar from "@/components/layout/NavBar";
+import Providers from "@/components/layout/providers";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -20,14 +21,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${cairo.variable} antialiased `}>
-        <main className="min-h-screen  mx-auto max-w-screen-2xl">
-          <NavBar />
-          {children}
-        </main>
-        <Footer />
-      </body>
-    </html>
+    <Providers>
+      <html lang="en">
+        <body className={`${cairo.variable} antialiased `}>
+          <main className="min-h-screen  mx-auto max-w-screen-2xl">
+            <NavBar />
+            {children}
+          </main>
+          <Footer />
+        </body>
+      </html>
+    </Providers>
   );
 }

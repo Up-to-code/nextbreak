@@ -1,12 +1,25 @@
+"use client"
 import Image from 'next/image'
 import React from 'react'
 import Link from 'next/link'
+import { useCartStore } from '@/store/cartStore'
 
-export default function ProductCard() {
+interface Product {
+  id: number
+  name: string
+  price: number
+  image: string
+}
+
+
+export default function ProductCard({product} : {product: Product}) {
+  const {addToCart} = useCartStore()
+
   return (
-    <Link href="/product/1">
+   
     <div className="max-w-sm border-4 border-black rounded-none bg-white  ">
       {/* Product Image */}
+      <Link href={`/product/${product.id}`}>
       <div className="relative h-64 w-full border-b-4 border-black">
         <Image 
           src="/book.jpeg"
@@ -16,6 +29,7 @@ export default function ProductCard() {
           className="rounded-none"
         />
       </div>
+      </Link>
 
       {/* Product Info */}
       <div className="p-5">
@@ -45,7 +59,14 @@ export default function ProductCard() {
         
         {/* Action Buttons */}
         <div className="flex gap-3">
-          <button className="flex-1 bg-white text-black font-extrabold py-3 px-4 border-4 border-black hover:bg-gray-200 hover:border-b-8 hover:border-r-8 hover:border-black transition-all">
+          <button className="flex-1 bg-white text-black font-extrabold py-3 px-4 border-4 border-black hover:bg-gray-200 hover:border-b-8 hover:border-r-8 hover:border-black transition-all" 
+          onClick={() => addToCart({
+            id: 1 + Math.floor(Math.random() * 100),
+            name: 'Book Title',
+            price: 100,
+            image: '/book.jpeg'
+          })}
+          > 
             ADD TO CART
           </button>
           <button className="flex-1 bg-green-400 text-black font-extrabold py-3 px-4 border-4 border-black hover:bg-green-500 hover:border-b-8 hover:border-r-8 hover:border-black transition-all">
@@ -54,6 +75,6 @@ export default function ProductCard() {
         </div>
       </div>
     </div>
-    </Link>
+ 
   )
 }

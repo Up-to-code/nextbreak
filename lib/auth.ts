@@ -1,8 +1,8 @@
 import NextAuth, { DefaultSession, User } from "next-auth"
- import CredentialsProvider from "next-auth/providers/credentials"
+import CredentialsProvider from "next-auth/providers/credentials"
 import { PrismaAdapter } from "@auth/prisma-adapter"
-import bcrypt from "bcryptjs"
 import { prisma } from "."
+import crypto from "crypto";
 
 // Type extensions
 declare module "next-auth" {
@@ -22,6 +22,17 @@ declare module "next-auth" {
     } & DefaultSession["user"]
   }
 }
+
+// Password hashing with PBKDF2 (Edge compatible)
+const hashPassword = (password: string, salt: string): string => {
+  return crypto.pbkdf2Sync(
+    password, 
+    salt, 
+    100000, 
+    64, 
+    'sha512'
+  ).toString('hex');
+};
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
@@ -63,13 +74,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           })
 
           if (user) {
-            // Verify password
-            const isValid = await bcrypt.compare(
-              password as string, 
-              user.password
-            )
+            // Verify password using PBKDF2
+            const [salt, storedHash] = user.password.split(':');
+            const hash = hashPassword(password as string, salt);
             
-            if (!isValid) {
+            if (hash !== storedHash) {
               throw new Error("Invalid password")
             }
 
@@ -87,7 +96,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             throw new Error("Name and phone are required for registration")
           }
 
-          const hashedPassword = await bcrypt.hash(password as string, 12)
+          // Generate salt and hash
+          const salt = crypto.randomBytes(16).toString('hex');
+          const hash = hashPassword(password as string, salt);
+          const hashedPassword = `${salt}:${hash}`;
           
           const newUser = await prisma.user.create({
             data: {
@@ -109,7 +121,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         } catch (error) {
           console.error("Authentication error:", error)
-          throw error
+          return null;
         }
       }
     })

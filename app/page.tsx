@@ -6,80 +6,45 @@ import { getProducts } from "./admin/actions/product";
 export default async function Home() {
   const products = await getProducts();
   
-  // Sort products by buyer count (top sellers)
   const topSellers = [...products]
-    .sort((a, b) => b.buyerCount - a.buyerCount)
+    .sort((a, b) => (b.buyerCount || 0) - (a.buyerCount || 0))
     .slice(0, 3);
   
-  // Get newest products (created within last 7 days)
-  const oneWeekAgo = new Date();
-  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-  
   const newArrivals = [...products]
-    .filter(product => new Date(product.createdAt) > oneWeekAgo)
+    .filter(product => {
+      const week = 7 * 24 * 60 * 60 * 1000;
+      return Date.now() - new Date(product.createdAt).getTime() < week;
+    })
     .slice(0, 3);
 
   return (
     <div className="pb-20">
       <Carousel />
       
-      {/* Top Sellers Section */}
       <div className="mt-16">
-        <BrutalTitle
-          mainText="Top Sellers"
-          accentColor="yellow"
-          borderSize="sm"
-        />
-        <div className="flex flex-wrap gap-10 justify-center items-center my-10">
-          {topSellers.length > 0 ? (
-            topSellers.map(product => (
-              <ProductCard key={product.id} product={product} />
-            ))
-          ) : (
-            <p className="text-gray-500 text-center w-full py-10">
-              No top sellers yet
-            </p>
-          )}
+        <BrutalTitle mainText="Top Sellers" accentColor="yellow" />
+        <div className="grid md:grid-cols-3 gap-6 my-10 px-4">
+          {topSellers.map(product => (
+            <ProductCard key={product.id} product={product} />
+          ))}
         </div>
       </div>
       
-      {/* New Arrivals Section */}
       <div className="mt-16">
-        <BrutalTitle
-          mainText="New Arrivals"
-          accentColor="green"
-          borderSize="sm"
-        />
-        <div className="flex flex-wrap gap-10 justify-center items-center my-10">
-          {newArrivals.length > 0 ? (
-            newArrivals.map(product => (
-              <ProductCard key={product.id} product={product} />
-            ))
-          ) : (
-            <p className="text-gray-500 text-center w-full py-10">
-              No new arrivals this week
-            </p>
-          )}
+        <BrutalTitle mainText="New Arrivals" accentColor="green" />
+        <div className="grid md:grid-cols-3 gap-6 my-10 px-4">
+          {newArrivals.map(product => (
+            <ProductCard key={product.id} product={product} />
+          ))}
         </div>
       </div>
       
-      {/* All Products Section */}
       <div className="mt-16">
-        <BrutalTitle
-          mainText="Browse All Products"
-          accentColor="blue"
-          borderSize="sm"
-        />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 justify-center items-center my-10 px-4">
-          {products.length > 0 ? (
-            products.map(product => (
-              <ProductCard key={product.id} product={product} />
-            ))
-          ) : (
-            <p className="text-gray-500 text-center w-full py-10 col-span-3">
-              No products available
-            </p>
-          )}
+        <BrutalTitle mainText="All Products" accentColor="blue" />
+        <div className="grid md:grid-cols-3 gap-6 my-10 px-4">
+          {products.map(product => (
+            <ProductCard key={product.id} product={product} />
+          ))}
         </div>
       </div>
     </div>

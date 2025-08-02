@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib";
+import { auth } from "@/lib/auth";
  import { revalidatePath } from "next/cache";
  
 // Types
@@ -159,5 +160,162 @@ export async function incrementBuyerCount(id: string) {
   } catch (error) {
     console.error("Error incrementing buyer count:", error);
     return { error: "Failed to update buyer count" };
+  }
+}
+
+// Define the Comment type
+interface Comment {
+  id?: string;
+  content: string;
+  userId: string;
+  productId: string;
+}
+
+
+export async function addComment(data: Comment) {
+  try {
+    // Get the current session to verify user
+    const session = await auth(); 
+    
+    if (!session?.user?.id) {
+      return { error: "You must be logged in to add a comment" };
+    }
+
+    const comment = await prisma.comment.create({
+      data: {
+        content: data.content,
+        userId: session.user.id, // Use session user ID for security
+        productId: data.productId,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+    });
+
+    revalidatePath(`/products/${data.productId}`);
+    return { success: true, comment };
+  } catch (error) {
+    console.error("Error adding comment:", error);
+    return { error: "Failed to add comment" };
+  }
+}
+
+export async function deleteComment(id: string, productId: string) {
+  try {
+    // Get the current session to verify user ownership
+    const session = await auth();
+    
+    if (!session?.user?.id) {
+      return { error: "You must be logged in to delete a comment" };
+    }
+
+    // Check if the comment belongs to the current user
+    const existingComment = await prisma.comment.findUnique({
+      where: { id },
+      select: { userId: true },
+    });
+
+    if (!existingComment) {
+      return { error: "Comment not found" };
+    }
+
+    if (existingComment.userId !== session.user.id) {
+      return { error: "You can only delete your own comments" };
+    }
+
+    await prisma.comment.delete({
+      where: { id },
+    });
+
+    revalidatePath(`/products/${productId}`);
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting comment:", error);
+    return { error: "Failed to delete comment" };
+  }
+}
+
+export async function updateComment(data: Comment) {
+  try {
+    // Get the current session to verify user ownership
+    const session = await auth();
+    
+    if (!session?.user?.id) {
+      return { error: "You must be logged in to update a comment" };
+    }
+
+    if (!data.id) {
+      return { error: "Comment ID is required" };
+    }
+
+    // Check if the comment belongs to the current user
+    const existingComment = await prisma.comment.findUnique({
+      where: { id: data.id },
+      select: { userId: true, productId: true },
+    });
+
+    if (!existingComment) {
+      return { error: "Comment not found" };
+    }
+
+    if (existingComment.userId !== session.user.id) {
+      return { error: "You can only update your own comments" };
+    }
+
+    const { id, ...updateData } = data;
+
+    // Remove undefined values
+    const cleanData = Object.fromEntries(
+      Object.entries(updateData).filter(([_, value]) => value !== undefined)
+    );
+
+    const comment = await prisma.comment.update({
+      where: { id },
+      data: cleanData,
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+    });
+
+    revalidatePath(`/products/${existingComment.productId}`);
+    return { success: true, comment };
+  } catch (error) {
+    console.error("Error updating comment:", error);
+    return { error: "Failed to update comment" };
+  }
+}
+
+export async function getComments(productId: string) {
+  try {
+    const comments = await prisma.comment.findMany({
+      where: { productId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return { success: true, comments };
+  } catch (error) {
+    console.error("Error fetching comments:", error);
+    return { error: "Failed to fetch comments" };
   }
 }

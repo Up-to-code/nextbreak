@@ -5,7 +5,7 @@ import { Card } from './components/card';
 import { LatestOrders } from './components/orders';
 import { UserStats } from './components/users';
 import { ResponseRate } from './components/responses';
-import { getDashboardStats, DashboardStats } from './actions/actions';
+import { getDashboardStats, DashboardStats } from '../../actions/actions';
 
 export default function Dashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);

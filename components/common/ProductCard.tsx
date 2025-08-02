@@ -3,7 +3,15 @@ import Image from 'next/image'
 import React from 'react'
 import Link from 'next/link'
 import { useCartStore } from '@/store/cartStore'
-import { Product } from '@prisma/client'
+type Product = {
+  id: string;
+  title: string;
+  images: string[];
+  price: number;
+  description: string;
+  buyerCount: number;
+ 
+}
 
 export default function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useCartStore()

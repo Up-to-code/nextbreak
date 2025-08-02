@@ -42,7 +42,7 @@ const SimpleProductForm = () => {
     
     try {
       // Import the server action
-      const { createProduct } = await import('@/app/admin/actions/product');
+      const { createProduct } = await import('@/actions/product');
       
       const result = await createProduct({
         title: formData.title,

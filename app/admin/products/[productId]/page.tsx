@@ -37,7 +37,7 @@ const ProductEditPage = ({
   useEffect(() => {
     const loadProduct = async () => {
       try {
-        const { getProductById } = await import('@/app/admin/actions/product');
+        const { getProductById } = await import('@/actions/product');
         const productData = await getProductById(productId);
         
         if (productData) {
@@ -91,7 +91,7 @@ const ProductEditPage = ({
     setSaving(true);
     
     try {
-      const { updateProduct } = await import('@/app/admin/actions/product');
+      const { updateProduct } = await import('@/actions/product');
       
       const result = await updateProduct({
         id: productId,

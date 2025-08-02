@@ -1,7 +1,7 @@
 import Carousel from "@/components/Carousel";
 import BrutalTitle from "@/components/common/BrutalTitle";
 import ProductCard from "@/components/common/ProductCard";
-import { getProducts } from "./admin/actions/product";
+import { getProducts } from "../actions/product";
 
 export default async function Home() {
   const products = await getProducts();

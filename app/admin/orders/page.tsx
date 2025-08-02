@@ -6,7 +6,7 @@ import OrderTable from '../components/orders/OrderTable';
 import OrderStats from '../components/orders/OrderStats';
 import OrderFilters from '../components/orders/OrderFilters';
 import OrderActions from '../components/orders/OrderActions';
-import { getOrders, updateOrderStatus, OrderWithUser } from '../actions/actions';
+import { getOrders, updateOrderStatus, OrderWithUser } from '../../../actions/actions';
 
 export default function OrderManagement() {
   const [activeFilter, setActiveFilter] = useState('all');

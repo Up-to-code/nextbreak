@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 
 import { prisma } from "@/lib";
@@ -50,22 +51,62 @@ export async function createProduct(data: CreateProductData) {
 }
 
 // Get all products
-export async function getProducts() {
+// app/actions/product.ts
+
+interface GetProductsParams {
+  search?: string;
+  sort?: string;
+  minPrice?: number;
+  maxPrice?: number;
+}
+
+export async function getProducts(params: GetProductsParams = {}) {
   try {
+    const { search, sort, minPrice, maxPrice } = params;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const where: any = {};
+    
+    if (search) {
+      where.title = {
+        contains: search,
+        mode: 'insensitive',
+      };
+    }
+
+    if (minPrice !== undefined || maxPrice !== undefined) {
+      where.price = {};
+      if (minPrice !== undefined) where.price.gte = minPrice;
+      if (maxPrice !== undefined) where.price.lte = maxPrice;
+    }
+
+    const orderBy: any = {};
+    if (sort) {
+      switch (sort) {
+        case 'price-asc':
+          orderBy.price = 'asc';
+          break;
+        case 'price-desc':
+          orderBy.price = 'desc';
+          break;
+        case 'popular':
+          orderBy.buyerCount = 'desc';
+          break;
+        case 'newest':
+          orderBy.createdAt = 'desc';
+          break;
+      }
+    } else {
+      orderBy.createdAt = 'desc';
+    }
+
     const products = await prisma.product.findMany({
-      orderBy: {
-        createdAt: "desc",
-      },
+      where,
+      orderBy,
       include: {
-        _count: {
-          select: {
-            comments: true,
-            orderItems: true,
-          },
-        },
+        comments: true,
       },
     });
-
     return products;
   } catch (error) {
     console.error("Error fetching products:", error);

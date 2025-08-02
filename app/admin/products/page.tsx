@@ -5,7 +5,7 @@ import {
   getProducts,
   deleteProduct,
   ProductWithStats,
-} from "../actions/actions";
+} from "../../../actions/actions";
 import Link from "next/link";
 
 export default function ProductManagement() {

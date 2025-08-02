@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Role } from '@prisma/client';
-import { getUsers, updateUserRole, UserWithOrders } from '../actions/actions';
+import { getUsers, updateUserRole, UserWithOrders } from '../../../actions/actions';
 
 export default function UserManagement() {
   const [users, setUsers] = useState<UserWithOrders[]>([]);

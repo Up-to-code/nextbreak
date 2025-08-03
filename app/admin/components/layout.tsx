@@ -1,13 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
 
 interface MenuItem {
   name: string;
   icon: string;
   href: string;
+  adminOnly?: boolean;
 }
 
 interface DashboardLayoutProps {
@@ -15,33 +17,29 @@ interface DashboardLayoutProps {
 }
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
-  const [sidebarOpen, setSidebarOpen] = useState(false); // Start closed on mobile
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const pathname = usePathname();
-  
+  const router = useRouter();
+  const { data: session, status } = useSession();
+
   const menuItems: MenuItem[] = [
     { name: 'Dashboard', icon: '📊', href: '/admin' },
     { name: 'Orders', icon: '📦', href: '/admin/orders' },
     { name: 'Products', icon: '🛍️', href: '/admin/products' },
-    { name: 'Users', icon: '👥', href: '/admin/users' },
-    { name: 'Analytics', icon: '📈', href: '/admin/analytics' },
+    { name: 'Users', icon: '👥', href: '/admin/users', adminOnly: true },
+    { name: 'Analytics', icon: '📈', href: '/admin/analytics', adminOnly: true },
     { name: 'Carousel', icon: '🎠', href: '/admin/carousel' },
     { name: 'Pages', icon: '📄', href: '/admin/pages' },
     { name: 'Contact', icon: '📞', href: '/admin/contact' },
-   ];
+  ];
 
   // Handle responsive behavior
   useEffect(() => {
     const checkScreenSize = () => {
       const mobile = window.innerWidth < 768;
       setIsMobile(mobile);
-      
-      // Auto-close sidebar on mobile, auto-open on desktop
-      if (mobile) {
-        setSidebarOpen(false);
-      } else {
-        setSidebarOpen(true);
-      }
+      setSidebarOpen(!mobile); // Auto-open on desktop, close on mobile
     };
 
     checkScreenSize();
@@ -49,12 +47,49 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     return () => window.removeEventListener('resize', checkScreenSize);
   }, []);
 
+  // Redirect if not authenticated or not admin
+  useEffect(() => {
+    if (status === 'loading') return;
+    
+    if (!session) {
+      router.push('/auth/signin');
+      return;
+    }
+
+    if (session?.user?.role !== 'ADMIN') {
+      router.push('/');
+    }
+  }, [session, status, router]);
+
   // Close sidebar when clicking on mobile menu item
   const handleMobileMenuClick = () => {
     if (isMobile) {
       setSidebarOpen(false);
     }
   };
+
+  // Filter menu items based on user role
+  const filteredMenuItems = menuItems.filter(item => 
+    !item.adminOnly || session?.user?.role === 'ADMIN'
+  );
+
+  if (status === 'loading') {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-2xl font-bold">Loading...</div>
+      </div>
+    );
+  }
+
+  if (session?.user?.role !== 'ADMIN') {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-2xl font-bold text-red-500 p-8 border-4 border-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          Access Denied - Admin Only
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -124,7 +159,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         {/* Navigation */}
         <nav className="mt-6 px-2 flex-1 overflow-y-auto">
           <ul className="space-y-1">
-            {menuItems.map((item) => {
+            {filteredMenuItems.map((item) => {
               const isActive = pathname === item.href;
               
               return (

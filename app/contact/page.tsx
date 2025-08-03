@@ -101,7 +101,7 @@ export default function ContactPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#f9f9f9] text-black py-12 px-6 md:px-16">
+    <main className="min-h-screen  text-black py-12 px-6 md:px-16">
       <section className="max-w-5xl mx-auto bg-white border-4 border-black shadow-[8px_8px_0px_0px_black] p-6 md:p-12 space-y-12">
         {/* Header */}
         <h1 className="text-4xl md:text-6xl font-bold uppercase border-b-4 border-black pb-4">

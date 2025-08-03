@@ -13,7 +13,7 @@ export const ContentDisplay = ({ title, content, currentYear }: ContentDisplayPr
   const router = useRouter();
 
   return (
-    <div className="relative flex min-h-[calc(100vh-80px)] flex-col items-center justify-center bg-yellow-50 px-4 py-12">
+    <div className="relative flex min-h-[calc(100vh-80px)] flex-col items-center justify-center  px-4 py-12">
       <div className="relative w-full max-w-2xl border-4 border-black bg-white shadow-[8px_8px_0_0_#000]">
         <header className="border-b-4 border-black bg-yellow-500 px-6 py-4">
           <h1 className="text-center text-3xl font-black uppercase tracking-tight text-black">

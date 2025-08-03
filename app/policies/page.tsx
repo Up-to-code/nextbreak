@@ -75,7 +75,7 @@ export default function PoliciesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen ">
       <ContentDisplay content={policies} title="Policies" currentYear={currentYear} />
     </div>
   );

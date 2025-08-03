@@ -391,11 +391,7 @@ const AdminContactPage = () => {
 
       {/* Loading Overlay */}
       {loading && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white border-4 border-black p-8 shadow-[8px_8px_0px_0px_#000]">
-            <p className="text-2xl font-black uppercase">LOADING...</p>
-          </div>
-        </div>
+    null
       )}
 
       {/* Contact Info Tab */}

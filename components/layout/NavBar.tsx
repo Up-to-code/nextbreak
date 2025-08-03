@@ -14,7 +14,8 @@ import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 import { AuthDialog } from "./AuthDialog";
 import { usePathname } from "next/navigation";
-
+import Image from "next/image";
+  
 function NavBar() {
   const pathname = usePathname();
 
@@ -51,7 +52,10 @@ function NavBar() {
   const links = [
     { name: "Home", href: "/" },
     { name: "Products", href: "/products" },
+
+    { name: "Contact", href: "/contact" },
     { name: "About", href: "/about" },
+    { name: "Policies", href: "/policies" },
   ];
 
   // Close all menus
@@ -207,7 +211,9 @@ function NavBar() {
             <h3 className="font-extrabold uppercase text-sm">
               {truncateName(item.name)}
             </h3>
-            <p className="font-bold text-green-600">SAR {item.price.toFixed(2)}</p>
+            <p className="font-bold text-green-600">
+              SAR {item.price.toFixed(2)}
+            </p>
           </div>
           <button
             onClick={() =>
@@ -278,12 +284,7 @@ function NavBar() {
               href="/"
               className="flex items-center space-x-3 hover:no-underline focus:outline-none focus:ring-2 focus:ring-yellow-500 rounded"
             >
-              <div className="w-12 h-12 bg-black flex items-center justify-center border-4 border-black shadow-[4px_4px_0_0_#000] hover:shadow-[6px_6px_0_0_#000] transition-all">
-                <span className="text-white font-extrabold text-xl">A</span>
-              </div>
-              <h1 className="text-3xl font-extrabold uppercase tracking-tighter hover:text-yellow-500 transition-colors">
-                AIcademy
-              </h1>
+            <Image src="/logo.png" alt="logo" width={100} height={100} />
             </Link>
 
             <div className="hidden md:flex items-center space-x-4">
@@ -392,14 +393,14 @@ function NavBar() {
                         <Link className="w-full" href="/checkout">
                           <button
                             onClick={handleCheckout}
-                          disabled={
-                            loadingStates.checkout || cartItems.length === 0
-                          }
-                          className="bg-black text-white py-2 font-extrabold uppercase border-4 border-white hover:bg-green-600 shadow-[4px_4px_0_0_#000] hover:shadow-[6px_6px_0_0_#000] transition-all flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-yellow-500 disabled:opacity-50"
-                        >
-                          {loadingStates.checkout ? (
-                            <Loader2 className="animate-spin h-4 w-4 mr-2" />
-                          ) : (
+                            disabled={
+                              loadingStates.checkout || cartItems.length === 0
+                            }
+                            className="bg-black text-white py-2 font-extrabold uppercase border-4 border-white hover:bg-green-600 shadow-[4px_4px_0_0_#000] hover:shadow-[6px_6px_0_0_#000] transition-all flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-yellow-500 disabled:opacity-50"
+                          >
+                            {loadingStates.checkout ? (
+                              <Loader2 className="animate-spin h-4 w-4 mr-2" />
+                            ) : (
                               "Checkout"
                             )}
                           </button>

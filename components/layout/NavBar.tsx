@@ -284,7 +284,7 @@ function NavBar() {
               href="/"
               className="flex items-center space-x-3 hover:no-underline focus:outline-none focus:ring-2 focus:ring-yellow-500 rounded"
             >
-            <Image src="/logo.png" alt="logo" width={100} height={100} />
+            <Image src="/logo.png" alt="logo" width={150} height={150} className="-mt-4"/>
             </Link>
 
             <div className="hidden md:flex items-center space-x-4">

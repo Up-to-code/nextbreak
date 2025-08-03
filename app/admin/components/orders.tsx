@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 // components/orders.tsx
 interface Order {
   id: string;
@@ -60,9 +62,11 @@ export const LatestOrders = ({ orders }: LatestOrdersProps) => {
           </div>
         )}
       </div>
+      <Link href="/admin/orders">
       <button className="mt-4 w-full border-2 border-black bg-[#FFD166] py-2 font-bold text-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
         View All Orders
       </button>
+      </Link>
     </div>
   );
 };

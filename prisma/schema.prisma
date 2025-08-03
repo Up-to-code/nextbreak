@@ -173,3 +173,11 @@ model ContactMessage {
   isRead     Boolean  @default(false) // For admin tracking
   createdAt  DateTime @default(now())
 }
+
+model Carousel {
+  id        String   @id @default(cuid())
+  image     String
+  link      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

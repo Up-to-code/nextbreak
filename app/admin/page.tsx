@@ -38,15 +38,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen p-4">
-      <header className="mb-6 flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-black">Admin Dashboard</h1>
-        <div className="flex items-center space-x-4">
-          <button className="border-2 border-black bg-[#FF6B6B] px-4 py-2 font-bold text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none">
-            Notifications
-          </button>
-          <div className="h-10 w-10 rounded-full border-2 border-black bg-[#4ECDC4]"></div>
-        </div>
-      </header>
+   <h1 className="text-3xl font-bold text-black my-4">Admin Dashboard</h1>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
         <Card 
@@ -78,7 +70,7 @@ export default function Dashboard() {
         
         <div className="space-y-6">
           <UserStats users={stats?.recentUsers || []} />
-          <ResponseRate />
+     
         </div>
       </div>
     </div>

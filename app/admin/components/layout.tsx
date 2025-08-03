@@ -26,6 +26,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     { name: 'Users', icon: '👥', href: '/admin/users' },
     { name: 'Analytics', icon: '📈', href: '/admin/analytics' },
     { name: 'Carousel', icon: '🎠', href: '/admin/carousel' },
+    { name: 'Pages', icon: '📄', href: '/admin/pages' },
+    { name: 'Contact', icon: '📞', href: '/admin/contact' },
    ];
 
   // Handle responsive behavior

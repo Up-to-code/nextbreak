@@ -1,48 +1,82 @@
-"use client";
-import React from "react";
-import { useRouter } from "next/navigation";
+"use client"
+import { useEffect, useState } from 'react';
+import { getContent } from '@/actions/content';
+import { ContentDisplay } from '@/components/ContentDisplay';
 
-const PoliciesPage = () => {
-  const router = useRouter();
+export default function PoliciesPage() {
+  const [policies, setPolicies] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(true);
+  const currentYear = new Date().getFullYear();
 
-  return (
-    <div className="min-h-screen p-4 flex flex-col items-center bg-yellow-50">
-      {/* Main content container */}
-      <div className="w-full max-w-2xl border-4 border-black bg-white p-6 shadow-[8px_8px_0_0_#000] mt-12">
-        {/* Header */}
-        <h1 className="text-3xl font-black uppercase border-b-4 border-black pb-2 mb-4">
-          POLICIES
-        </h1>
-        
-        {/* Description */}
-        <p className="text-lg font-medium mb-8">
-          Our policies are simple: we respect your privacy and provide transparent terms of service.
-          Contact us if you have any questions.
+  // Default content if none exists
+  const defaultPoliciesContent = `
+    <div class="max-w-4xl mx-auto p-6">
+      <h1 class="text-3xl font-bold mb-6">Our Policies</h1>
+      <p class="mb-4">
+        At our company, we are committed to transparency and protecting your rights.
+        This document outlines our policies regarding data privacy, terms of service,
+        and acceptable use of our platform.
+      </p>
+      
+      <div class="mb-6">
+        <h2 class="text-2xl font-semibold mb-2">Privacy Policy</h2>
+        <p>
+          We respect your privacy and are committed to protecting your personal data.
+          We collect only necessary information to provide our services and never share
+          your data with third parties without your consent.
         </p>
+      </div>
+      
+      <div class="mb-6">
+        <h2 class="text-2xl font-semibold mb-2">Terms of Service</h2>
+        <p>
+          By using our services, you agree to abide by our terms of service. These include
+          restrictions on illegal activities, respecting intellectual property rights,
+          and maintaining the security of your account.
+        </p>
+      </div>
+      
+      <div class="bg-gray-100 p-4 border-l-4 border-blue-500 mt-8">
+        <p class="text-sm">
+          <strong>Note:</strong> This is default content. Please update your policies
+          through the admin dashboard.
+        </p>
+        <p class="text-sm mt-2">© {currentYear} Your Company Name. All rights reserved.</p>
+      </div>
+    </div>
+  `;
 
-        {/* Action buttons */}
-        <div className="flex gap-4">
-          <button
-            onClick={() => router.push("/")}
-            className="px-6 py-3 bg-black text-white font-bold border-2 border-black shadow-[4px_4px_0_0_#000] hover:shadow-none"
-          >
-            HOME
-          </button>
-          <button
-            onClick={() => router.push("/contact")}
-            className="px-6 py-3 bg-white text-black font-bold border-2 border-black shadow-[4px_4px_0_0_#000] hover:shadow-none"
-          >
-            CONTACT
-          </button>
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        setIsLoading(true);
+        const contentData = await getContent();
+        setPolicies(contentData.policies?.content || defaultPoliciesContent);
+      } catch (error) {
+        console.error('Failed to fetch policies:', error);
+        setPolicies(defaultPoliciesContent);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchContent();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+          <p className="text-lg font-medium">Loading policies...</p>
         </div>
       </div>
+    );
+  }
 
-      {/* Footer */}
-      <p className="mt-8 text-sm font-bold">
-        © {new Date().getFullYear()} COMPANY NAME
-      </p>
+  return (
+    <div className="min-h-screen bg-white">
+      <ContentDisplay content={policies} title="Policies" currentYear={currentYear} />
     </div>
   );
-};
-
-export default PoliciesPage;
+}

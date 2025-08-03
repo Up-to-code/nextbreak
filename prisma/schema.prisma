@@ -136,43 +136,8 @@ model OrderItem {
 
 
 
-model GlobalSettings {
-  id             String   @id @default(cuid())
-  
-  // Branding
-  siteTitle      String   // e.g., "MyShop"
-  logoUrl        String   // Logo image URL
 
-  // About & Policies
-  aboutUs        String   // Rich text or markdown
-  termsOfService String
-  privacyPolicy  String
-
-  // Contact Info
-  contactEmail   String
-  phoneNumber    String
-  address        String
-
-  // Social Links
-  facebookUrl    String?
-  instagramUrl   String?
-  twitterUrl     String?
-  linkedinUrl    String?
-  youtubeUrl     String?
-  tiktokUrl      String?
-
-  updatedAt      DateTime @updatedAt
-}
-
-model ContactMessage {
-  id         String   @id @default(cuid())
-  name       String   // User's name
-  email      String   // User's email
-  subject    String   // Optional subject
-  message    String   // The message content
-  isRead     Boolean  @default(false) // For admin tracking
-  createdAt  DateTime @default(now())
-}
+ 
 
 model Carousel {
   id        String   @id @default(cuid())
@@ -180,4 +145,72 @@ model Carousel {
   link      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+model About {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@unique([id]) // Enforce single record
+}
+
+model Policies {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@unique([id]) // Enforce single record
+}
+
+
+
+model ContactMessage {
+  id         Int      @id @default(autoincrement())
+  name       String
+  email      String
+  message    String
+  createdAt  DateTime @default(now())
+  isRead     Boolean  @default(false)
+  responded  Boolean  @default(false)
+  phone      String?
+  source     String?
+  
+  @@map("contact_messages")
+}
+
+model ContactInfo {
+  id         Int      @id @default(autoincrement())
+  email      String
+  phone      String
+  address    String
+  whatsapp   String
+  updatedAt  DateTime @updatedAt
+  
+  @@map("contact_info")
 }

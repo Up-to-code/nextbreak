@@ -7,6 +7,7 @@ import { getProducts } from "@/actions/product";
 import { FiSearch, FiX, FiFilter } from 'react-icons/fi';
 import { Suspense, useEffect, useState } from 'react';
 import ProductCardSkeleton from "./ProductCardSkeleton";
+import ProductsLoading from './loading';
 
 interface Product {
   id: string;
@@ -176,7 +177,7 @@ export  function ProductsContent() {
 }
 export default function ProductsPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<ProductsLoading />}>
       <ProductsContent />
     </Suspense>
   );

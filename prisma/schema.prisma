@@ -27,7 +27,8 @@ model User {
   orders        Order[]
   // addresses     Address[] // Added for shipping addresses
   points          Int       @default(0) // Add this line
-
+  grade           String?
+ 
   @@map("users")
 }
 

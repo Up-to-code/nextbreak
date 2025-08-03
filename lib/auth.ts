@@ -12,6 +12,7 @@ declare module "next-auth" {
     name: string
     role: string
     phone: string
+    grade: string
   }
   
   interface Session extends DefaultSession {
@@ -19,6 +20,7 @@ declare module "next-auth" {
       id: string
       role: string
       phone: string
+      grade: string
     } & DefaultSession["user"]
   }
 }
@@ -58,7 +60,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         phone: { 
           label: "Phone (Register Only)", 
           type: "tel" 
-        }
+        },
+        grade: { 
+          label: "Grade (Register Only)", 
+          type: "text" 
+        },
+       
       },
       async authorize(credentials) {
         try {
@@ -66,7 +73,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             throw new Error("Email and password are required")
           }
 
-          const { email, password, name, phone } = credentials
+          const { email, password, name, phone, grade } = credentials
           
           // Find existing user
           const user = await prisma.user.findUnique({
@@ -87,7 +94,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               email: user.email,
               name: user.name || "",
               phone: user.phone,
-              role: user.role
+              role: user.role,
+              grade: user.grade
             } as User
           }
 
@@ -107,7 +115,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               password: hashedPassword,
               name: name as string,
               phone: phone as string,
-              role: "USER"
+              role: "USER",
+              grade: grade as string
             }
           })
 
@@ -116,7 +125,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             email: newUser.email,
             name: newUser.name,
             phone: newUser.phone,
-            role: newUser.role
+            role: newUser.role,
+            grade: newUser.grade
           } as User
 
         } catch (error) {
@@ -136,6 +146,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.id = user.id
         token.role = user.role
         token.phone = user.phone
+        token.grade = user.grade
       }
       return token
     },
@@ -144,7 +155,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.id = token.id as string
         session.user.role = token.role as string
         session.user.phone = token.phone as string
-      }
+        session.user.grade = token.grade as string
+        }
       return session
     }
   },

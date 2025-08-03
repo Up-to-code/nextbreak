@@ -16,6 +16,7 @@ export const AuthDialog = ({ mode, onClose, onSwitchMode }: AuthDialogProps) => 
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
+  const [grade, setGrade] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
@@ -29,7 +30,7 @@ export const AuthDialog = ({ mode, onClose, onSwitchMode }: AuthDialogProps) => 
       const result = await signIn('credentials', {
         email,
         password,
-        ...(mode === 'signup' && { name, phone }),
+        ...(mode === 'signup' && { name, phone, grade }),
         redirect: false,
       })
 
@@ -37,7 +38,7 @@ export const AuthDialog = ({ mode, onClose, onSwitchMode }: AuthDialogProps) => 
         setError(result.error)
       } else {
         onClose()
-        router.refresh() // Refresh to update auth state
+        router.refresh()
       }
     } catch (err) {
       setError('An unexpected error occurred')
@@ -143,6 +144,22 @@ export const AuthDialog = ({ mode, onClose, onSwitchMode }: AuthDialogProps) => 
                   required
                   className="w-full px-4 py-3 border-2 border-black rounded shadow-[4px_4px_0_0_#000] focus:shadow-[6px_6px_0_0_#000] transition-all"
                   placeholder="+1 (123) 456-7890"
+                />
+              </div>
+
+              {/* Grade Field - Now as text input */}
+              <div>
+                <label htmlFor="grade" className="block font-bold mb-1 uppercase text-sm">
+                  Grade Level
+                </label>
+                <input
+                  id="grade"
+                  type="text"
+                  value={grade}
+                  onChange={(e) => setGrade(e.target.value)}
+                  required
+                  className="w-full px-4 py-3 border-2 border-black rounded shadow-[4px_4px_0_0_#000] focus:shadow-[6px_6px_0_0_#000] transition-all"
+                  placeholder="Enter your grade (e.g., 10th Grade)"
                 />
               </div>
             </>

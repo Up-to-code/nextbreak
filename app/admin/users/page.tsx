@@ -180,7 +180,7 @@ export default function UserManagement() {
                         {selectedUser.role}
                       </span>
                     </p>
-                    
+                    <p><span className="font-bold">Grade:</span> {selectedUser.grade}</p>
                     <div className="flex items-center mt-2">
                       <span className="font-bold">Total Points:</span>
                       {editingPoints ? (

@@ -45,6 +45,7 @@ export interface UserWithOrders {
   phone: string;
   role: Role;
   points: number;
+  grade: string; // Added missing grade field
   createdAt: Date;
   updatedAt: Date;
   orders: Array<{
@@ -96,12 +97,14 @@ export interface DashboardStats {
     user: {
       name: string;
       email: string;
+      grade: string;
     };
   }>;
   recentUsers: Array<{
     id: string;
     name: string;
     email: string;
+    grade: string;
     createdAt: Date;
     orders: Array<{
       id: string;
@@ -189,7 +192,7 @@ export async function updateOrderStatus(orderId: string, status: string) {
   try {
     const updatedOrder = await prisma.order.update({
       where: { id: orderId },
-      data: { status: status as OrderStatus },
+      data: { status: status as OrderStatus }, // Explicit type conversion
       include: {
         user: true,
         items: {
@@ -254,6 +257,7 @@ export async function getUsers(params: {
         phone: true,
         role: true,
         points: true,
+        grade: true,
         createdAt: true,
         updatedAt: true,
         orders: {
@@ -390,7 +394,7 @@ export async function createProduct(data: {
       data: {
         title: data.title,
         description: data.description,
-        price: parseFloat(data.price.toString()),
+        price: data.price, // Removed unnecessary parseFloat
         images: data.images || []
       }
     });
@@ -475,7 +479,8 @@ export async function getDashboardStats(): Promise<DashboardStats> {
         user: {
           select: {
             name: true,
-            email: true
+            email: true,
+            grade: true
           }
         }
       },
@@ -484,14 +489,25 @@ export async function getDashboardStats(): Promise<DashboardStats> {
       }
     });
 
-    // Get recent user activity
+    // Get recent user activity - FIXED FIELD SELECTION
     const recentUsers = await prisma.user.findMany({
       take: 5,
-      include: {
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        grade: true,
+        createdAt: true,
         orders: {
           take: 1,
           orderBy: {
             createdAt: 'desc'
+          },
+          select: {
+            id: true,
+            totalPrice: true,
+            status: true,
+            createdAt: true
           }
         }
       },

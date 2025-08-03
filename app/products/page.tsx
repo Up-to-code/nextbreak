@@ -5,7 +5,7 @@ import BrutalTitle from "@/components/common/BrutalTitle";
 import ProductCard from "@/components/common/ProductCard";
 import { getProducts } from "@/actions/product";
 import { FiSearch, FiX, FiFilter } from 'react-icons/fi';
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import ProductCardSkeleton from "./ProductCardSkeleton";
 
 interface Product {
@@ -18,7 +18,7 @@ interface Product {
   createdAt: Date;
 }
 
-export default function ProductsPage() {
+export  function ProductsContent() {
   const router = useRouter();
   const params = useSearchParams();
   const [products, setProducts] = useState<Product[]>([]);
@@ -172,5 +172,12 @@ export default function ProductsPage() {
         </div>
       )}
     </div>
+  );
+}
+export default function ProductsPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ProductsContent />
+    </Suspense>
   );
 }

@@ -1,4 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
+
 import { prisma } from "@/lib/";
 import { OrderStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
@@ -15,12 +17,12 @@ interface CreateOrderParams {
   totalPrice: number;
   paymentMethod: string;
   shippingMethod: string;
-  shippingAddressId: string; // Now required
 }
 
 export async function createOrder(orderData: CreateOrderParams) {
   try {
-    if (!orderData.userId || !orderData.items.length || !orderData.shippingAddressId) {
+    // Validate required fields
+    if (!orderData.userId || !orderData.items.length) {
       return {
         success: false,
         error: "Missing required fields",
@@ -28,6 +30,7 @@ export async function createOrder(orderData: CreateOrderParams) {
       };
     }
 
+    // Check if user exists
     const userExists = await prisma.user.findUnique({
       where: { id: orderData.userId },
     });
@@ -40,21 +43,10 @@ export async function createOrder(orderData: CreateOrderParams) {
       };
     }
 
-    // Verify address exists
-    const addressExists = await prisma.address.findUnique({
-      where: { id: orderData.shippingAddressId },
-    });
-    
-    if (!addressExists) {
-      return {
-        success: false,
-        error: "Shipping address not found",
-        order: null,
-      };
-    }
+    // Calculate points earned (1 point per 5 SAR spent)
+    const pointsEarned = Math.floor(orderData.totalPrice / 5);
 
-    const pointsEarned = Math.floor(orderData.totalPrice / 10);
-
+    // Create order in a transaction
     const newOrder = await prisma.$transaction(async (tx) => {
       // Create the order
       const order = await tx.order.create({
@@ -64,8 +56,6 @@ export async function createOrder(orderData: CreateOrderParams) {
           pointsEarned,
           status: OrderStatus.PENDING,
           paymentMethod: orderData.paymentMethod,
-          shippingMethod: orderData.shippingMethod,
-          shippingAddressId: orderData.shippingAddressId,
           items: {
             create: orderData.items.map((item) => ({
               productId: item.productId,
@@ -74,7 +64,9 @@ export async function createOrder(orderData: CreateOrderParams) {
             })),
           },
         },
-        include: { items: true }
+        include: { 
+          items: true
+        }
       });
 
       // Update product buyer counts
@@ -86,12 +78,24 @@ export async function createOrder(orderData: CreateOrderParams) {
           })
         )
       );
+      
+      // Update user's total points (using atomic operation)
+      await tx.user.update({
+        where: { id: orderData.userId },
+        data: { 
+          points: {
+            increment: pointsEarned
+          }
+        }
+      });
 
       return order;
     });
 
+    // Revalidate relevant paths
     revalidatePath("/orders");
     revalidatePath("/profile");
+    revalidatePath("/dashboard");
 
     return {
       success: true,
@@ -99,7 +103,6 @@ export async function createOrder(orderData: CreateOrderParams) {
       order: newOrder,
     };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error("Order creation failed:", error);
     return {
@@ -111,53 +114,57 @@ export async function createOrder(orderData: CreateOrderParams) {
 }
 
 export async function getOrderById(orderId: string) {
-    try {
-      return await prisma.order.findUnique({
-        where: { id: orderId },
-        include: {
-          items: {
-            include: {
-              product: {
-                select: {
-                  title: true,
-                  images: true
-                }
-              }
-            }
-          },
-          shippingAddress: true
-        }
-      });
-    } catch (error) {
-      console.error("Failed to fetch order:", error);
-      return null;
-    }
-  }
-
-
-
-  export async function getOrdersByUserId(userId: string) {
-    try {
-      return await prisma.order.findMany({
-        where: { userId },
-        include: {
-          items: {
-            include: {
-              product: {
-                select: {
-                  title: true,
-                  images: true
-                }
+  try {
+    return await prisma.order.findUnique({
+      where: { id: orderId },
+      include: {
+        items: {
+          include: {
+            product: {
+              select: {
+                title: true,
+                images: true
               }
             }
           }
         },
-        orderBy: {
-          createdAt: 'desc'
+        user: {
+          select: {
+            name: true,
+            email: true,
+            phone: true
+          }
         }
-      });
-    } catch (error) {
-      console.error("Failed to fetch orders:", error);
-      return [];
-    }
+      }
+    });
+  } catch (error) {
+    console.error("Failed to fetch order:", error);
+    return null;
   }
+}
+
+export async function getOrdersByUserId(userId: string) {
+  try {
+    return await prisma.order.findMany({
+      where: { userId },
+      include: {
+        items: {
+          include: {
+            product: {
+              select: {
+                title: true,
+                images: true
+              }
+            }
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+  } catch (error) {
+    console.error("Failed to fetch orders:", error);
+    return [];
+  }
+}

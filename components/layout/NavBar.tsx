@@ -207,7 +207,7 @@ function NavBar() {
             <h3 className="font-extrabold uppercase text-sm">
               {truncateName(item.name)}
             </h3>
-            <p className="font-bold text-green-600">${item.price.toFixed(2)}</p>
+            <p className="font-bold text-green-600">SAR {item.price.toFixed(2)}</p>
           </div>
           <button
             onClick={() =>
@@ -259,7 +259,7 @@ function NavBar() {
             </button>
           </div>
           <span className="font-extrabold text-lg">
-            ${(item.price * item.quantity).toFixed(2)}
+            SAR {(item.price * item.quantity).toFixed(2)}
           </span>
         </div>
       </li>
@@ -374,7 +374,7 @@ function NavBar() {
                       <div className="flex justify-between items-center mb-4">
                         <span className="font-extrabold uppercase">Total:</span>
                         <span className="font-extrabold text-xl text-green-600">
-                          ${totalPrice().toFixed(2)}
+                          SAR {totalPrice().toFixed(2)}
                         </span>
                       </div>
                       <div className="grid grid-cols-2 gap-2">
@@ -389,8 +389,9 @@ function NavBar() {
                             "Clear All"
                           )}
                         </button>
-                        <button
-                          onClick={handleCheckout}
+                        <Link className="w-full" href="/checkout">
+                          <button
+                            onClick={handleCheckout}
                           disabled={
                             loadingStates.checkout || cartItems.length === 0
                           }
@@ -399,9 +400,10 @@ function NavBar() {
                           {loadingStates.checkout ? (
                             <Loader2 className="animate-spin h-4 w-4 mr-2" />
                           ) : (
-                            "Checkout"
-                          )}
-                        </button>
+                              "Checkout"
+                            )}
+                          </button>
+                        </Link>
                       </div>
                     </div>
                   )}
@@ -579,7 +581,7 @@ function NavBar() {
                       <div className="flex justify-between items-center mb-4">
                         <span className="font-extrabold uppercase">Total:</span>
                         <span className="font-extrabold text-xl text-green-600">
-                          ${totalPrice().toFixed(2)}
+                          SAR {totalPrice().toFixed(2)}
                         </span>
                       </div>
                       <div className="grid grid-cols-2 gap-2">

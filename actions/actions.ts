@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use server';
 
 import { prisma } from '@/lib/';
@@ -13,7 +14,6 @@ export interface OrderWithUser {
   status: OrderStatus;
   paymentMethod: string;
   shippingMethod: string;
-  shippingAddressId: string | null;
   createdAt: Date;
   updatedAt: Date;
   user: {
@@ -22,6 +22,7 @@ export interface OrderWithUser {
     email: string;
     phone: string;
     password: string;
+    points: number;
     role: Role;
     emailVerified: Date | null;
     image: string | null;
@@ -29,6 +30,7 @@ export interface OrderWithUser {
     updatedAt: Date;
   };
   items: Array<{
+    [x: string]: any;
     id: string;
     title: string;
     price: number;
@@ -42,18 +44,15 @@ export interface UserWithOrders {
   email: string;
   phone: string;
   role: Role;
+  points: number;
   createdAt: Date;
   updatedAt: Date;
   orders: Array<{
     id: string;
     totalPrice: number;
+    pointsEarned: number;
     status: string;
     createdAt: Date;
-  }>;
-  addresses: Array<{
-    id: string;
-    city: string;
-    state: string;
   }>;
 }
 
@@ -155,8 +154,7 @@ export async function getOrders(params: {
           include: {
             product: true
           }
-        },
-        shippingAddress: true
+        }
       },
       orderBy: {
         createdAt: 'desc'
@@ -249,23 +247,25 @@ export async function getUsers(params: {
 
     const users = await prisma.user.findMany({
       where,
-      include: {
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        role: true,
+        points: true,
+        createdAt: true,
+        updatedAt: true,
         orders: {
           select: {
             id: true,
             totalPrice: true,
+            pointsEarned: true,
             status: true,
             createdAt: true
           },
           orderBy: {
             createdAt: 'desc'
-          }
-        },
-        addresses: {
-          select: {
-            id: true,
-            city: true,
-            state: true
           }
         }
       },
@@ -279,7 +279,7 @@ export async function getUsers(params: {
     const total = await prisma.user.count({ where });
 
     return {
-      users,
+      users: users as UserWithOrders[],
       pagination: {
         page,
         limit,
@@ -295,23 +295,13 @@ export async function getUsers(params: {
 
 export async function updateUserRole(userId: string, role: Role) {
   try {
-    const updatedUser = await prisma.user.update({
+    await prisma.user.update({
       where: { id: userId },
-      data: { role },
-      include: {
-        orders: {
-          select: {
-            id: true,
-            totalPrice: true,
-            status: true,
-            createdAt: true
-          }
-        }
-      }
+      data: { role }
     });
 
     revalidatePath('/admin/users');
-    return updatedUser;
+    return { success: true };
   } catch (error) {
     console.error('Error updating user:', error);
     throw new Error('Failed to update user role');
@@ -529,4 +519,121 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     console.error('Error fetching stats:', error);
     throw new Error('Failed to fetch dashboard stats');
   }
-} 
+}
+
+// Order creation with points system
+export interface CreateOrderParams {
+  userId: string;
+  items: Array<{
+    productId: string;
+    quantity: number;
+    priceAtPurchase: number;
+  }>;
+  totalPrice: number;
+  paymentMethod: string;
+}
+
+export async function createOrder(orderData: CreateOrderParams) {
+  try {
+    // Validate required fields
+    if (!orderData.userId || !orderData.items.length) {
+      return {
+        success: false,
+        error: "Missing required fields",
+        order: null,
+      };
+    }
+
+    // Check if user exists
+    const userExists = await prisma.user.findUnique({
+      where: { id: orderData.userId },
+    });
+
+    if (!userExists) {
+      return {
+        success: false,
+        error: "User not found",
+        order: null,
+      };
+    }
+
+    // Calculate points earned (1 point per 5 SAR spent)
+    const pointsEarned = Math.floor(orderData.totalPrice / 5);
+
+    // Create order in a transaction
+    const newOrder = await prisma.$transaction(async (tx) => {
+      // Create the order
+      const order = await tx.order.create({
+        data: {
+          userId: orderData.userId,
+          totalPrice: orderData.totalPrice,
+          pointsEarned,
+          status: OrderStatus.PENDING,
+          paymentMethod: orderData.paymentMethod,
+          items: {
+            create: orderData.items.map((item) => ({
+              productId: item.productId,
+              quantity: item.quantity,
+              priceAtPurchase: item.priceAtPurchase,
+            })),
+          },
+        },
+        include: { 
+          items: true
+        }
+      });
+
+      // Update product buyer counts
+      await Promise.all(
+        orderData.items.map((item) =>
+          tx.product.update({
+            where: { id: item.productId },
+            data: { buyerCount: { increment: 1 } },
+          })
+        )
+      );
+      
+      // Update user's total points
+      await tx.user.update({
+        where: { id: orderData.userId },
+        data: { points: { increment: pointsEarned } }
+      });
+
+      return order;
+    });
+
+    // Revalidate relevant paths
+    revalidatePath("/orders");
+    revalidatePath("/profile");
+    revalidatePath("/dashboard");
+
+    return {
+      success: true,
+      error: null,
+      order: newOrder,
+    };
+  } catch (error: any) {
+    console.error("Order creation failed:", error);
+    return {
+      success: false,
+      error: error.message || "Internal server error",
+      order: null,
+    };
+  }
+}
+
+// Add to your existing actions
+export async function updateUserPoints(userId: string, points: number) {
+  try {
+    await prisma.user.update({
+      where: { id: userId },
+      data: { points }
+    });
+    
+    revalidatePath('/admin/users');
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating user points:', error);
+    throw new Error('Failed to update user points');
+  }
+}

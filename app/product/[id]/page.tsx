@@ -7,6 +7,7 @@ import { Product } from "@prisma/client";
 import { useCartStore } from "@/store/cartStore";
 import { ProductGallery } from "@/components/product/ProductGallery";
 import { useSession } from "next-auth/react";
+import Image from "next/image"; // Added for points icon
 
 // Types for comments
 interface Comment {
@@ -108,6 +109,9 @@ export default function NeoBrutalProductPage({
   const currentUser = session?.user;
   const router = useRouter();
   const { addToCart } = useCartStore();
+
+  // Calculate points earned for this product
+  const pointsEarned = Math.floor((product?.price || 0) / 5) * quantity;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -401,6 +405,27 @@ export default function NeoBrutalProductPage({
             {/* Price */}
             <div className="text-3xl font-black text-black">
               SAR {product.price.toFixed(2)}
+            </div>
+
+            {/* Points Earned Section - Added Here */}
+            <div className="flex items-center gap-3 bg-yellow-50 border-2 border-black p-3">
+            
+                <Image 
+                  src="/points.jpg" 
+                  width={50} 
+                  height={50} 
+                  alt="Reward Points" 
+                  className="border border-gray-300"
+                />
+             
+              <div>
+                <p className="font-bold">
+                  Earn <span className="text-yellow-700">{pointsEarned} points</span>
+                </p>
+                <p className="text-sm text-gray-600">
+                  (1 point for every 5 SAR spent)
+                </p>
+              </div>
             </div>
 
             {/* Quantity Selector */}

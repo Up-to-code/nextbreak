@@ -7,6 +7,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { AuthDialog } from "@/components/layout/AuthDialog";
 import { createOrder } from "@/actions/order";
+import Image from "next/image";
 
 const CheckoutPage = () => {
   const { data: session } = useSession();
@@ -23,8 +24,13 @@ const CheckoutPage = () => {
   } = useCartStore();
 
   const [isPending, setIsPending] = useState(false);
-  const [authDialog, setAuthDialog] = useState<"signin" | "signup" | null>(null);
+  const [authDialog, setAuthDialog] = useState<"signin" | "signup" | null>(
+    null
+  );
   const [errorMessage, setErrorMessage] = useState("");
+
+  // Calculate points earned (1 point for every 5 SAR)
+  const pointsEarned = Math.floor(totalPrice() / 5);
 
   const handleSubmitOrder = async () => {
     if (!session?.user?.id) {
@@ -37,10 +43,10 @@ const CheckoutPage = () => {
 
     try {
       // Prepare order items
-      const orderItems = cartItems.map(item => ({
+      const orderItems = cartItems.map((item) => ({
         productId: item.id,
         quantity: item.quantity,
-        priceAtPurchase: item.price
+        priceAtPurchase: item.price,
       }));
 
       // Create order
@@ -71,8 +77,12 @@ const CheckoutPage = () => {
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="text-center max-w-md">
           <div className="text-6xl mb-4">🛒</div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-3">Your cart is empty</h2>
-          <p className="text-gray-600 mb-6">Add some products to get started!</p>
+          <h2 className="text-2xl font-bold text-gray-800 mb-3">
+            Your cart is empty
+          </h2>
+          <p className="text-gray-600 mb-6">
+            Add some products to get started!
+          </p>
           <button
             onClick={() => router.push("/products")}
             className="bg-black text-white px-6 py-3 font-bold border-2 border-black hover:bg-white hover:text-black transition-colors"
@@ -134,7 +144,9 @@ const CheckoutPage = () => {
 
                     <div className="flex-1 min-w-0">
                       <h3 className="font-bold">{item.name}</h3>
-                      <p className="text-gray-600">SAR {item.price.toFixed(2)} each</p>
+                      <p className="text-gray-600">
+                        SAR {item.price.toFixed(2)} each
+                      </p>
                     </div>
 
                     <div className="flex items-center gap-1">
@@ -149,7 +161,12 @@ const CheckoutPage = () => {
                       <input
                         type="number"
                         value={item.quantity}
-                        onChange={(e) => updateQuantity(item.id, Math.max(1, parseInt(e.target.value) || 1))}
+                        onChange={(e) =>
+                          updateQuantity(
+                            item.id,
+                            Math.max(1, parseInt(e.target.value) || 1)
+                          )
+                        }
                         className="w-12 text-center border border-black py-1"
                         min="1"
                       />
@@ -163,7 +180,9 @@ const CheckoutPage = () => {
                     </div>
 
                     <div className="text-right min-w-[70px]">
-                      <p className="font-bold">SAR {(item.price * item.quantity).toFixed(2)}</p>
+                      <p className="font-bold">
+                        SAR {(item.price * item.quantity).toFixed(2)}
+                      </p>
                       <button
                         onClick={() => removeFromCart(item.id)}
                         className="text-red-500 hover:text-red-700 mt-1"
@@ -174,6 +193,27 @@ const CheckoutPage = () => {
                   </div>
                 </div>
               ))}
+            </div>
+            
+            {/* Points Section - Added Here */}
+            <div className="mt-4 p-3 bg-yellow-50 border-2 border-dashed border-yellow-300 flex items-center">
+              <div className="mr-3">
+                <Image 
+                  width={40} 
+                  height={40} 
+                  src={"/points.jpg"} 
+                  alt="Reward Points" 
+                  className="border border-gray-300"
+                />
+              </div>
+              <div>
+                <p className="font-bold text-yellow-700">
+                  You&lsquo;ll earn <span className="text-lg">{pointsEarned} points</span>
+                </p>
+                <p className="text-sm text-yellow-600">
+                  (1 point for every 5 SAR spent)
+                </p>
+              </div>
             </div>
 
             <div className="mt-5 pt-3 border-t-2 border-black">
@@ -219,9 +259,10 @@ const CheckoutPage = () => {
               onClick={handleSubmitOrder}
               disabled={isPending}
               className={`w-full mt-3 py-3 px-4 font-bold text-lg border-2 border-black transition-colors
-                ${isPending
-                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : "bg-green-400 hover:bg-white hover:text-black"
+                ${
+                  isPending
+                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    : "bg-green-400 hover:bg-white hover:text-black"
                 }`}
             >
               {isPending ? (

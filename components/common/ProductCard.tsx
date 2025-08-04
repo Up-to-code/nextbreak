@@ -68,7 +68,13 @@ export default function ProductCard({ product }: { product: Product }) {
         {/* Pricing */}
         <div className="flex items-center mb-6 gap-2">
           <span className="text-3xl font-extrabold text-black">
-            SAR {product.price.toFixed(2)}
+          <Image
+                   width={20}
+                   height={20}
+                   src={"/SAR.svg"}
+                   alt="Reward Points"
+                   className="border border-gray-300"
+                   /> {product.price.toFixed(2)}
           </span>
         </div>
         

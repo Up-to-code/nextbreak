@@ -145,7 +145,13 @@ const CheckoutPage = () => {
                     <div className="flex-1 min-w-0">
                       <h3 className="font-bold">{item.name}</h3>
                       <p className="text-gray-600">
-                        SAR {item.price.toFixed(2)} each
+                      <Image
+                   width={20}
+                   height={20}
+                   src={"/SAR.svg"}
+                   alt="Reward Points"
+                   className="border border-gray-300"
+                   /> {item.price.toFixed(2)} each
                       </p>
                     </div>
 
@@ -181,7 +187,13 @@ const CheckoutPage = () => {
 
                     <div className="text-right min-w-[70px]">
                       <p className="font-bold">
-                        SAR {(item.price * item.quantity).toFixed(2)}
+                      <Image
+                   width={20}
+                   height={20}
+                   src={"/SAR.svg"}
+                   alt="Reward Points"
+                   className="border border-gray-300"
+                   /> {(item.price * item.quantity).toFixed(2)}
                       </p>
                       <button
                         onClick={() => removeFromCart(item.id)}
@@ -211,7 +223,13 @@ const CheckoutPage = () => {
                   You&lsquo;ll earn <span className="text-lg">{pointsEarned} points</span>
                 </p>
                 <p className="text-sm text-yellow-600">
-                  (1 point for every 5 SAR spent)
+                  (1 point for every 5         <Image
+                   width={20}
+                   height={20}
+                   src={"/SAR.svg"}
+                   alt="Reward Points"
+                   className="border border-gray-300"
+                   /> spent)
                 </p>
               </div>
             </div>
@@ -220,7 +238,13 @@ const CheckoutPage = () => {
               <div className="flex justify-between items-center text-xl font-bold">
                 <span>TOTAL:</span>
                 <span className="bg-yellow-300 px-3 py-1 border border-black">
-                  SAR {totalPrice().toFixed(2)}
+                <Image
+                   width={20}
+                   height={20}
+                   src={"/SAR.svg"}
+                   alt="Reward Points"
+                   className="border border-gray-300"
+                   /> {totalPrice().toFixed(2)}
                 </span>
               </div>
             </div>
@@ -255,25 +279,34 @@ const CheckoutPage = () => {
             </div>
 
             <button
-              type="button"
-              onClick={handleSubmitOrder}
-              disabled={isPending}
-              className={`w-full mt-3 py-3 px-4 font-bold text-lg border-2 border-black transition-colors
-                ${
-                  isPending
-                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                    : "bg-green-400 hover:bg-white hover:text-black"
-                }`}
-            >
-              {isPending ? (
-                <span className="flex items-center justify-center gap-2">
-                  <Loader2 className="animate-spin h-5 w-5" />
-                  PROCESSING...
-                </span>
-              ) : (
-                `PLACE ORDER - SAR ${totalPrice().toFixed(2)}`
-              )}
-            </button>
+  type="button"
+  onClick={handleSubmitOrder}
+  disabled={isPending}
+  className={`w-full mt-3 py-3 px-4 font-bold text-lg border-2 border-black transition-colors
+    ${
+      isPending
+        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+        : "bg-green-400 hover:bg-white hover:text-black"
+    }`}
+>
+  {isPending ? (
+    <span className="flex items-center justify-center gap-2">
+      <Loader2 className="animate-spin h-5 w-5" />
+      PROCESSING...
+    </span>
+  ) : (
+    <span className="flex items-center justify-center gap-1">
+      PLACE ORDER - {totalPrice().toFixed(2)}
+      <Image
+        width={20}
+        height={20}
+        src={"/SAR.svg"}
+        alt="SAR currency"
+        className="border border-gray-300"
+      />
+    </span>
+  )}
+</button>
           </div>
         </div>
       </div>

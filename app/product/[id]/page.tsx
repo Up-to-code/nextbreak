@@ -404,7 +404,13 @@ export default function NeoBrutalProductPage({
 
             {/* Price */}
             <div className="text-3xl font-black text-black">
-              SAR {product.price.toFixed(2)}
+            <Image
+                   width={20}
+                   height={20}
+                   src={"/SAR.svg"}
+                   alt="Reward Points"
+                   className="border border-gray-300"
+                   /> {product.price.toFixed(2)}
             </div>
 
             {/* Points Earned Section - Added Here */}
@@ -423,7 +429,13 @@ export default function NeoBrutalProductPage({
                   Earn <span className="text-yellow-700">{pointsEarned} points</span>
                 </p>
                 <p className="text-sm text-gray-600">
-                  (1 point for every 5 SAR spent)
+                  (1 point for every 5  <Image
+                   width={20}
+                   height={20}
+                   src={"/SAR.svg"}
+                   alt="Reward Points"
+                   className="border border-gray-300"
+                   /> spent)
                 </p>
               </div>
             </div>
@@ -626,7 +638,13 @@ export default function NeoBrutalProductPage({
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t-4 border-black p-4 shadow-[0_-4px_0px_0px_rgba(0,0,0,1)] z-50">
           <div className="flex justify-between items-center gap-4">
             <div className="text-xl font-black">
-              SAR {product.price.toFixed(2)}
+            <Image
+                   width={20}
+                   height={20}
+                   src={"/SAR.svg"}
+                   alt="Reward Points"
+                   className="border border-gray-300"
+                   /> {product.price.toFixed(2)}
             </div>
             <button
               onClick={handleAddToCart}

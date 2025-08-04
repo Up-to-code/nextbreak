@@ -7,6 +7,7 @@ import {
   ProductWithStats,
 } from "../../../actions/actions";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function ProductManagement() {
   const [products, setProducts] = useState<ProductWithStats[]>([]);
@@ -227,7 +228,13 @@ export default function ProductManagement() {
               </div>
               <div>
                 <label className="block text-sm font-bold mb-2">
-                  Price (SAR)
+                  Price         <Image
+                   width={20}
+                   height={20}
+                   src={"/SAR.svg"}
+                   alt="Reward Points"
+                   className="border border-gray-300"
+                   />
                 </label>
                 <input
                   type="number"

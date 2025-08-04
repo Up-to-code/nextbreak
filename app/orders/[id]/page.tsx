@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { Truck, CheckCircle, Loader2, ArrowLeft, Printer } from "lucide-react";
 import { Button } from "@/components/Button";
 import { getOrderById } from "@/actions/order";
+import Image from "next/image";
 
 interface OrderItem {
   id: string;
@@ -198,7 +199,13 @@ export default function OrderDetailsPage({
                 </div>
                 <div className="flex justify-between border-t-2 border-black pt-2 mt-2">
                   <span className="font-bold">Order Total:</span>
-                  <span className="font-bold">SAR {order.totalPrice.toFixed(2)}</span>
+                  <span className="font-bold"> <Image
+                   width={20}
+                   height={20}
+                   src={"/SAR.svg"}
+                   alt="Reward Points"
+                   className="border border-gray-300"
+                   /> {order.totalPrice.toFixed(2)}</span>
                 </div>
               </div>
             </div>
@@ -227,9 +234,21 @@ export default function OrderDetailsPage({
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-bold">SAR {item.priceAtPurchase.toFixed(2)}</p>
+                    <p className="font-bold"> <Image
+                   width={20}
+                   height={20}
+                   src={"/SAR.svg"}
+                   alt="Reward Points"
+                   className="border border-gray-300"
+                   /> {item.priceAtPurchase.toFixed(2)}</p>
                     <p className="text-gray-600">
-                      SAR {(item.priceAtPurchase * item.quantity).toFixed(2)}
+                    <Image
+                   width={20}
+                   height={20}
+                   src={"/24 PX.svg"}
+                   alt="Reward Points"
+                   className="border border-gray-300"
+                   /> {(item.priceAtPurchase * item.quantity).toFixed(2)}
                     </p>
                   </div>
                 </div>

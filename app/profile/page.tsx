@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { User as UserIcon, ShoppingBag, LogOut } from "lucide-react";
 import { Button } from "@/components/Button";
 import { getOrdersByUserId } from "@/actions/order";
+import Image from "next/image";
 
 interface Order {
   id: string;
@@ -139,7 +140,13 @@ export default function ProfilePage() {
                     </div>
                     
                     <div className="mt-4 flex justify-between items-center">
-                      <p className="font-bold">Total: SAR {order.totalPrice.toFixed(2)}</p>
+                      <p className="font-bold">Total:  <Image
+                   width={20}
+                   height={20}
+                   src={"/SAR.svg"}
+                   alt="Reward Points"
+                   className="border border-gray-300"
+                   /> {order.totalPrice.toFixed(2)}</p>
                       <Button 
                         variant="outline" 
                         className="border-2 border-black hover:bg-gray-100"

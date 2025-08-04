@@ -5,6 +5,7 @@ import { getOrderById } from "@/actions/order";
 import { Truck, CheckCircle, Loader2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 interface OrderItem {
   id: string;
@@ -203,7 +204,13 @@ export default function OrderConfirmationPage({
                   <span className="font-bold">Items:</span> {order.items.length}
                 </p>
                 <p>
-                  <span className="font-bold">Total:</span> SAR {order.totalPrice.toFixed(2)}
+                  <span className="font-bold">Total:</span>         <Image
+                   width={20}
+                   height={20}
+                   src={"/SAR.svg"}
+                   alt="Reward Points"
+                   className="border border-gray-300"
+                   /> {order.totalPrice.toFixed(2)}
                 </p>
                 <p>
                   <span className="font-bold">Payment Method:</span> {order.paymentMethod}
@@ -243,9 +250,21 @@ export default function OrderConfirmationPage({
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-bold">SAR {item.priceAtPurchase.toFixed(2)}</p>
+                    <p className="font-bold"> <Image
+                   width={20}
+                   height={20}
+                   src={"/SAR.svg"}
+                   alt="Reward Points"
+                   className="border border-gray-300"
+                   /> {item.priceAtPurchase.toFixed(2)}</p>
                     <p className="text-gray-600">
-                      SAR {(item.priceAtPurchase * item.quantity).toFixed(2)}
+                    <Image
+                   width={20}
+                   height={20}
+                   src={"/24 PX.svg"}
+                   alt="Reward Points"
+                   className="border border-gray-300"
+                   /> {(item.priceAtPurchase * item.quantity).toFixed(2)}
                     </p>
                   </div>
                 </div>

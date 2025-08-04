@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Save, ArrowLeft } from 'lucide-react';
 import { UploadButton } from "@/lib/uploadthing";
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 interface Product {
   id: string;
@@ -221,7 +222,13 @@ const ProductEditPage = ({
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Price (SAR) *
+                Price         <Image
+                   width={20}
+                   height={20}
+                   src={"/SAR.svg"}
+                   alt="Reward Points"
+                   className="border border-gray-300"
+                   /> *
               </label>
               <input
                 type="number"

@@ -212,7 +212,13 @@ function NavBar() {
               {truncateName(item.name)}
             </h3>
             <p className="font-bold text-green-600">
-              SAR {item.price.toFixed(2)}
+            <Image
+                   width={20}
+                   height={20}
+                   src={"/SAR.svg"}
+                   alt="Reward Points"
+                   className="border border-gray-300"
+                   /> {item.price.toFixed(2)}
             </p>
           </div>
           <button
@@ -265,7 +271,13 @@ function NavBar() {
             </button>
           </div>
           <span className="font-extrabold text-lg">
-            SAR {(item.price * item.quantity).toFixed(2)}
+          <Image
+                   width={20}
+                   height={20}
+                   src={"/SAR.svg"}
+                   alt="Reward Points"
+                   className="border border-gray-300"
+                   /> {(item.price * item.quantity).toFixed(2)}
           </span>
         </div>
       </li>
@@ -375,7 +387,13 @@ function NavBar() {
                       <div className="flex justify-between items-center mb-4">
                         <span className="font-extrabold uppercase">Total:</span>
                         <span className="font-extrabold text-xl text-green-600">
-                          SAR {totalPrice().toFixed(2)}
+                        <Image
+                   width={20}
+                   height={20}
+                   src={"/SAR.svg"}
+                   alt="Reward Points"
+                   className="border border-gray-300"
+                   /> {totalPrice().toFixed(2)}
                         </span>
                       </div>
                       <div className="grid grid-cols-2 gap-2">
@@ -582,7 +600,13 @@ function NavBar() {
                       <div className="flex justify-between items-center mb-4">
                         <span className="font-extrabold uppercase">Total:</span>
                         <span className="font-extrabold text-xl text-green-600">
-                          SAR {totalPrice().toFixed(2)}
+                        <Image
+                   width={20}
+                   height={20}
+                   src={"/SAR.svg"}
+                   alt="Reward Points"
+                   className="border border-gray-300"
+                   /> {totalPrice().toFixed(2)}
                         </span>
                       </div>
                       <div className="grid grid-cols-2 gap-2">

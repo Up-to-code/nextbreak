@@ -168,3 +168,29 @@ export async function getOrdersByUserId(userId: string) {
     return [];
   }
 }
+
+
+export async function updateOrderStatus(orderId: string, status: OrderStatus) {
+  try {
+    const updatedOrder = await prisma.order.update({
+      where: { id: orderId },
+      data: { status }
+    });
+
+    revalidatePath(`/admin/orders/${orderId}`);
+    revalidatePath('/admin/dashboard');
+
+    return {
+      success: true,
+      order: updatedOrder,
+      error: null
+    };
+  } catch (error: any) {
+    console.error("Error updating order status:", error);
+    return {
+      success: false,
+      order: null,
+      error: error.message || "Failed to update order status"
+    };
+  }
+}

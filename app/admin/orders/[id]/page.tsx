@@ -3,23 +3,25 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { getOrderById } from '@/actions/order';
+import { useEffect, useState, useTransition } from 'react';
+import { getOrderById, updateOrderStatus } from '@/actions/order';
 import { formatDate, formatCurrency } from '@/lib/utils';
 import { Button } from '@/components/Button';
 import { Loader2, ArrowLeft } from 'lucide-react';
+import { OrderStatus } from '@prisma/client';
 
 export default function OrderDetailsPage() {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isUpdating, startTransition] = useTransition();
 
   useEffect(() => {
     const fetchOrder = async () => {
       try {
         setLoading(true);
-        const orderData = await getOrderById(id as string);
+        const orderData = await getOrderById(id);
         setOrder(orderData);
       } catch (error) {
         console.error('Error fetching order:', error);
@@ -30,6 +32,16 @@ export default function OrderDetailsPage() {
 
     fetchOrder();
   }, [id]);
+
+  const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newStatus = e.target.value as OrderStatus;
+    startTransition(async () => {
+      const result = await updateOrderStatus(order.id, newStatus);
+      if (result.success && result.order) {
+        setOrder({ ...order, status: result.order.status });
+      }
+    });
+  };
 
   if (loading) {
     return (
@@ -55,6 +67,7 @@ export default function OrderDetailsPage() {
       <Button 
         className="mb-4 flex items-center gap-2"
         onClick={() => router.back()}
+        variant="outline"
       >
         <ArrowLeft className="h-4 w-4" /> Back
       </Button>
@@ -65,8 +78,20 @@ export default function OrderDetailsPage() {
             <h1 className="text-xl md:text-2xl font-bold">Order #{order.id.slice(-8)}</h1>
             <p className="text-gray-600 text-sm">{formatDate(order.createdAt)}</p>
           </div>
-          <div className="bg-yellow-100 px-3 py-1 border-2 border-black">
-            <span className="font-bold text-sm">{order.status}</span>
+          <div className="flex items-center gap-3">
+            <select
+              value={order.status}
+              onChange={handleStatusChange}
+              disabled={isUpdating}
+              className="bg-yellow-100 px-3 py-1 border-2 border-black font-bold text-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {Object.values(OrderStatus).map((status) => (
+                <option key={status} value={status}>
+                  {status}
+                </option>
+              ))}
+            </select>
+            {isUpdating && <Loader2 className="h-4 w-4 animate-spin" />}
           </div>
         </div>
 
@@ -83,6 +108,7 @@ export default function OrderDetailsPage() {
             <p><strong>Total:</strong> {formatCurrency(order.totalPrice)}</p>
             <p><strong>Items:</strong> {order.items.length}</p>
             <p><strong>Payment:</strong> {order.paymentMethod}</p>
+            <p><strong>Status:</strong> {order.status}</p>
           </div>
         </div>
 
@@ -96,6 +122,11 @@ export default function OrderDetailsPage() {
                     src={item.product.images[0]} 
                     alt={item.product.title} 
                     className="w-16 h-16 object-cover border border-black"
+                    width={64}
+                    height={64}
+                    style={{ objectFit: 'cover' }}
+                    loading="lazy"
+                    
                   />
                 )}
                 <div>

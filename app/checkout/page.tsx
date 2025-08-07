@@ -7,7 +7,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { AuthDialog } from "@/components/layout/AuthDialog";
 import { createOrder } from "@/actions/order";
-import { getUserData } from "@/actions/actions";
+import { getUserData, updateUserPoints } from "@/actions/actions";
 import Image from "next/image";
 
 const CheckoutPage = () => {
@@ -37,12 +37,6 @@ const CheckoutPage = () => {
         try {
           const user = await getUserData(session.user.id);
           setUserPoints(user?.points || 0);
-          // Auto-select points usage if eligible
-            if (user?.points) {
-          if (user?.points >= 250) {
-            setPointsChoice("use");
-          }
-          } 
         } catch (error) {
           console.error('Failed to fetch user points', error);
           setUserPoints(0);
@@ -58,28 +52,24 @@ const CheckoutPage = () => {
   // Calculate points earned (1 SAR = 5 points)
   const pointsEarned = Math.floor(totalPrice() * 5);
   
-  // Discount calculation with requirements:
-  // 1. Minimum 250 points required to use
-  // 2. Discount capped at 25% of order value
+  // NEW DISCOUNT LOGIC: ALWAYS DEDUCT 250 POINTS
   let discountAmount = 0;
   let pointsUsed = 0;
   
   if (pointsChoice === "use" && userPoints >= 250) {
-    // Calculate maximum discount from points (5 points = 1 SAR)
-    const maxDiscountFromPoints = Math.floor(userPoints / 5);
+    // خصم 250 نقطة دائماً
+    pointsUsed = 250;
     
-    // Calculate 25% cap of order total
+    // حساب الخصم الأقصى المسموح (25% من قيمة الطلب)
     const maxDiscountByPercentage = totalPrice() * 0.25;
     
-    // Apply both caps (points discount and 25% limit)
-    discountAmount = Math.min(
-      maxDiscountFromPoints,
-      maxDiscountByPercentage,
-      totalPrice()
-    );
+    // الخصم الأساسي (50 ريال مقابل 250 نقطة)
+    const baseDiscount = 50;
     
-    // Calculate points used (1 SAR discount = 5 points)
-    pointsUsed = discountAmount * 5;
+    // الخصم الفعلي (محدود بـ 25% أو قيمة الطلب الكاملة)
+    discountAmount = Math.min(baseDiscount, maxDiscountByPercentage, totalPrice());
+    
+    // ملاحظة: سيتم خصم 250 نقطة حتى لو كان الخصم أقل من 50 ريال
   }
   
   const finalTotal = Math.max(0, totalPrice() - discountAmount);
@@ -87,6 +77,12 @@ const CheckoutPage = () => {
   const handleSubmitOrder = async () => {
     if (!session?.user?.id) {
       setAuthDialog("signin");
+      return;
+    }
+
+    // Prevent order if trying to use points but insufficient
+    if (pointsChoice === "use" && userPoints < 250) {
+      setErrorMessage("You need at least 250 points to redeem");
       return;
     }
 
@@ -113,9 +109,26 @@ const CheckoutPage = () => {
         originalPrice: totalPrice(),
       });
 
-      if (result.success) {
-        clearCart();
-        router.push(`/order-confirmation/${result.order?.id}`);
+      if (result.success && result.order?.id) {
+        // Calculate new points balance
+        const newPointsBalance = userPoints - pointsUsed + pointsEarned;
+        
+        try {
+          // Prevent negative points balance
+          if (newPointsBalance >= 0) {
+            await updateUserPoints(session.user.id, newPointsBalance);
+            setUserPoints(newPointsBalance);
+          } else {
+            console.error("Negative points balance prevented:", newPointsBalance);
+            setErrorMessage("Order placed, but points update failed. Contact support.");
+          }
+          
+          clearCart();
+          router.push(`/order-confirmation/${result.order.id}`);
+        } catch (error) {
+          console.error('Failed to update points', error);
+          setErrorMessage("Order placed, but failed to update points. Contact support.");
+        }
       } else {
         setErrorMessage(result.error || "Failed to place order.");
       }
@@ -273,24 +286,32 @@ const CheckoutPage = () => {
                 </div>
               </div>
               
+              {/* POINTS REDEMPTION */}
               {userPoints >= 250 ? (
                 <div className="space-y-4">
                   <button
                     onClick={() => setPointsChoice("use")}
                     className={`w-full p-4 border-4 border-black font-black text-left transition-all ${
-                      pointsChoice === "use" ? "bg-green-200" : "bg-white hover:bg-gray-50"
+                      pointsChoice === "use" 
+                        ? "bg-green-200 ring-4 ring-green-500" 
+                        : "bg-white hover:bg-gray-50"
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <div className="text-xl uppercase">USE MY POINTS</div>
+                        <div className="text-xl uppercase">REDEEM POINTS</div>
                         <div className="text-lg">
-                          GET {discountAmount.toFixed(2)} SAR OFF 
-                          {totalPrice() > 0 && (
-                            <span>
-                              {" "}(MAX 25% = {Math.floor(totalPrice() * 0.25)} SAR)
-                            </span>
-                          )}
+                          GET {Math.min(50, Math.floor(totalPrice() * 0.25), totalPrice())} SAR OFF
+                          <span className="text-red-600">
+                            {totalPrice() * 0.25 < 50 ? ` (LIMITED BY 25% CAP)` : ` (UP TO 50 SAR)`}
+                          </span>
+                        </div>
+                        <div className="text-sm mt-1 font-bold">
+                          • 250 points will ALWAYS be deducted
+                          <br />
+                          • Discount: {Math.min(50, Math.floor(totalPrice() * 0.25), totalPrice())} SAR (capped at 25% = {Math.floor(totalPrice() * 0.25)} SAR)
+                          <br />
+                          {userPoints > 250 && `• Your remaining points: ${userPoints - 250}`}
                         </div>
                       </div>
                       {pointsChoice === "use" && (
@@ -304,13 +325,20 @@ const CheckoutPage = () => {
                   <button
                     onClick={() => setPointsChoice("save")}
                     className={`w-full p-4 border-4 border-black font-black text-left transition-all ${
-                      pointsChoice === "save" ? "bg-blue-200" : "bg-white hover:bg-gray-50"
+                      pointsChoice === "save" 
+                        ? "bg-blue-200 ring-4 ring-blue-500" 
+                        : "bg-white hover:bg-gray-50"
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <div>
                         <div className="text-xl uppercase">SAVE POINTS</div>
                         <div className="text-lg">SAVE FOR ANOTHER TIME</div>
+                        <div className="text-sm mt-1 font-bold">
+                          • Keep your {userPoints} points + earn {pointsEarned} more
+                          <br />
+                          • Total after order: {userPoints + pointsEarned} points
+                        </div>
                       </div>
                       {pointsChoice === "save" && (
                         <div className="bg-black text-white px-3 py-1 text-lg font-black">
@@ -321,12 +349,21 @@ const CheckoutPage = () => {
                   </button>
                 </div>
               ) : (
-                <div className="bg-gray-100 border-4 border-black p-4 text-center">
-                  <p className="font-black text-xl uppercase">
+                // INSUFFICIENT POINTS MESSAGE
+                <div className="bg-yellow-100 border-4 border-yellow-500 p-4 text-center">
+                  <p className="font-black text-xl uppercase mb-2">
                     {userPoints > 0 
-                      ? `Minimum 250 points required to redeem (need ${250 - userPoints} more)` 
-                      : "Earn points with this purchase to redeem later!"}
+                      ? `NEED ${250 - userPoints} MORE POINTS TO REDEEM` 
+                      : "START EARNING POINTS TODAY!"}
                   </p>
+                  <div className="mt-2 text-lg font-bold flex flex-col gap-1">
+                    <span>• 250 points required for redemption</span>
+                    <span>• 250 points will ALWAYS be deducted (no partial redemption)</span>
+                    <span>• Discount varies from 1 to 50 SAR (capped at 25% of order)</span>
+                    <span className="mt-2 text-green-700 font-black">
+                      EARN {pointsEarned} POINTS WITH THIS ORDER!
+                    </span>
+                  </div>
                 </div>
               )}
             </div>
@@ -343,7 +380,12 @@ const CheckoutPage = () => {
                   <UserIcon className="w-6 h-6 mr-3" />
                   <div>
                     <div className="font-black text-lg uppercase">{session.user?.name}</div>
-                    <div className="font-bold">{userPoints} POINTS • +{pointsEarned} EARNED</div>
+                    <div className="font-bold">
+                      {userPoints} POINTS • +{pointsEarned} EARNED
+                      {pointsChoice === "use" && pointsUsed > 0 && (
+                        <span className="text-red-600"> • -{pointsUsed} USED</span>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -359,12 +401,14 @@ const CheckoutPage = () => {
                 </div>
               </div>
               
+              {/* Show discount only if applied (250+ points used) */}
               {discountAmount > 0 && (
                 <div className="flex justify-between text-2xl font-black text-green-600">
                   <span>POINTS DISCOUNT</span>
                   <div className="flex items-center">
                     <Image width={20} height={20} src={"/SAR.svg"} alt="SAR" className="mr-1" />
                     -{discountAmount.toFixed(2)}
+                    <span className="text-sm ml-2">(250 points deducted)</span>
                   </div>
                 </div>
               )}
@@ -378,9 +422,11 @@ const CheckoutPage = () => {
                   </div>
                 </div>
                 
+                {/* Special free order message */}
                 {finalTotal === 0 && (
                   <div className="text-center mt-4 bg-green-100 border-2 border-green-500 p-4">
                     <p className="text-2xl font-black uppercase text-green-800">FREE ORDER!</p>
+                    <p className="text-sm font-bold mt-2">250 points will still be deducted</p>
                   </div>
                 )}
               </div>
@@ -389,9 +435,9 @@ const CheckoutPage = () => {
             {/* Place Order Button */}
             <button
               onClick={handleSubmitOrder}
-              disabled={isPending}
+              disabled={isPending || (pointsChoice === "use" && userPoints < 250)}
               className={`w-full py-6 font-black text-2xl transition-all border-4 border-black uppercase ${
-                isPending
+                isPending || (pointsChoice === "use" && userPoints < 250)
                   ? "bg-gray-300 text-gray-600 cursor-not-allowed"
                   : "bg-green-400 hover:bg-green-500"
               }`}
@@ -401,6 +447,8 @@ const CheckoutPage = () => {
                   <Loader2 className="animate-spin w-6 h-6 mr-3" />
                   PROCESSING...
                 </div>
+              ) : pointsChoice === "use" && userPoints < 250 ? (
+                "INSUFFICIENT POINTS"
               ) : (
                 <div className="flex items-center justify-center">
                   {finalTotal === 0 ? "CLAIM FREE ORDER" : "PLACE ORDER"}

@@ -198,3 +198,75 @@ export async function updateOrderStatus(orderId: string, status: OrderStatus) {
     };
   }
 }
+export async function updateUserPoints(userId: string, points: number) {
+  try {
+    await prisma.user.update({
+      where: { id: userId },
+      data: { points }
+    });
+    
+    revalidatePath('/admin/users');
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating user points:', error);
+    throw new Error('Failed to update user points');
+  }
+}
+
+
+// In your server action or API route
+export async function redeemPoints(userId: string, pointsToRedeem: number) {
+  try {
+    // Get current points
+    const user = await prisma.user.findUnique({ where: { id: userId }});
+    const currentPoints = user?.points || 0;
+    
+    // Calculate new balance
+    const newPoints = currentPoints - pointsToRedeem;
+    
+    // Update points
+    const result = await updateUserPoints(userId, newPoints);
+    
+    if (result.success) {
+      return { success: true, newPoints };
+    }
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
+}
+export async function getUserData(userId: string) {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        role: true,
+        points: true,
+        grade: true,
+        createdAt: true,
+        updatedAt: true,
+        orders: {
+          select: {
+            id: true,
+            totalPrice: true,
+            pointsEarned: true,
+            status: true,
+            createdAt: true
+          }
+        }
+      },
+  
+    });
+
+    return user;
+  } catch (error) {
+    console.error('Failed to fetch user:', error);
+    return null;
+  }
+}

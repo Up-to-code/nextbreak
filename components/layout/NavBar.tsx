@@ -508,14 +508,12 @@ function NavBar() {
                   className="text-black px-6 py-3 font-extrabold uppercase border-4 border-black shadow-[4px_4px_0_0_#000] hover:shadow-[6px_6px_0_0_#000] hover:bg-gray-200 transition-all focus:outline-none focus:ring-2 focus:ring-yellow-500"
                 >
                   <span className="hidden sm:inline">Sign In</span>
-                  <span className="sm:hidden">In</span>
                 </button>
                 <button
                   onClick={() => handleAuthDialog("signup")}
                   className="bg-black text-white px-6 py-3 font-extrabold uppercase border-4 border-black shadow-[4px_4px_0_0_#000] hover:shadow-[6px_6px_0_0_#000] hover:bg-red-600 transition-all focus:outline-none focus:ring-2 focus:ring-yellow-500"
                 >
                   <span className="hidden sm:inline">Sign Up</span>
-                  <span className="sm:inline">Up</span>
                 </button>
               </>
             )}

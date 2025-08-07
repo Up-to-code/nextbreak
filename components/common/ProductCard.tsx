@@ -17,7 +17,7 @@ export default function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useCartStore()
   
   // Calculate points (5 points per SAR)
-  const points = Math.round(product.price * 5)
+  const points = Math.round(product.price / 5)
 
   return (
     <div className="max-w-sm border-4 border-black rounded-none bg-white transition-all hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1">
@@ -44,13 +44,13 @@ export default function ProductCard({ product }: { product: Product }) {
       <div className="p-5">
         {/* Title */}
         <Link href={`/product/${product.id}`}>
-          <h2 className="text-2xl font-extrabold text-black mb-3 uppercase tracking-tight hover:underline">
+          <h2 className="text-2xl font-extrabold text-black mb-3 uppercase tracking-tight hover:underline h-15">
             {product.title}
           </h2>
         </Link>
         
         {/* Description */}
-        <p className="text-black text-base mb-5 font-medium leading-tight border-b-4 border-black pb-4">
+        <p className="text-black text-base mb-5 font-medium leading-tight border-b-4 border-black pb-4 h-20">
           {product.description.substring(0, 100)}
           {product.description.length > 100 ? '...' : ''}
         </p>
@@ -60,22 +60,23 @@ export default function ProductCard({ product }: { product: Product }) {
           <span className="bg-yellow-300 text-black text-sm font-extrabold px-3 py-1 border-2 border-black">
             🔥 {points.toLocaleString()} POINTS
           </span>
-          <span className="ml-2 text-sm font-bold text-black">
+          {/* <span className="ml-2 text-sm font-bold text-black">
             ({product.buyerCount} purchases)
-          </span>
+          </span> */}
         </div>
         
         {/* Pricing */}
-        <div className="flex items-center mb-6 gap-2">
-          <span className="text-3xl font-extrabold text-black">
+        <div className="flex items-center mb-6 gap-2  w-full  my-2">
           <Image
-                   width={20}
-                   height={20}
+                   width={25}
+                   height={25}
                    src={"/SAR.svg"}
                    alt="Reward Points"
                    className="border border-gray-300"
-                   /> {product.price.toFixed(2)}
-          </span>
+                   /> <span className=' w-max text-3xl font-black'>
+                    {product.price.toFixed(2)}
+                   </span>
+      
         </div>
         
         {/* Action Buttons */}

@@ -16,7 +16,11 @@ interface CreateOrderParams {
   items: OrderItem[];
   totalPrice: number;
   paymentMethod: string;
-  shippingMethod: string;
+ 
+  pointsUsed: number;
+  pointsEarned: number;
+  discount: number;
+  originalPrice: number;
 }
 
 export async function createOrder(orderData: CreateOrderParams) {
@@ -55,8 +59,12 @@ export async function createOrder(orderData: CreateOrderParams) {
           totalPrice: orderData.totalPrice,
           pointsEarned,
           status: OrderStatus.PENDING,
-          paymentMethod: orderData.paymentMethod,
-          items: {
+          paymentMethod: orderData.paymentMethod || "Cash on Delivery",
+          shippingMethod: "standard",
+          originalPrice: orderData.originalPrice,
+          discount: orderData.discount,
+          pointsUsed: orderData.pointsUsed,
+           items: {
             create: orderData.items.map((item) => ({
               productId: item.productId,
               quantity: item.quantity,

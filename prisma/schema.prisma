@@ -25,9 +25,8 @@ model User {
   updatedAt     DateTime  @updatedAt
   comments      Comment[]
   orders        Order[]
-  // addresses     Address[] // Added for shipping addresses
-  points          Int       @default(0) // Add this line
-  grade           String    @default("1")
+  points        Int       @default(0)
+  grade         String    @default("1")
  
   @@map("users")
 }
@@ -113,16 +112,16 @@ model Order {
   user          User         @relation(fields: [userId], references: [id])
   userId        String
   items         OrderItem[]
-  totalPrice    Float
-  pointsEarned  Int          @default(0)
-  status        OrderStatus  @default(IN_PROGRESS) // Added status field
-  paymentMethod String       // Added payment method
-  // shippingMethod String      // Added shipping method
-  // shippingAddress Address?   @relation(fields: [shippingAddressId], references: [id]) // Added shipping address
-  // shippingAddressId String?  // Added shipping address ID
+  originalPrice Float        // Total before discount
+  discount      Float        @default(0.0) // Discount amount in SAR
+  totalPrice    Float        // Final price after discount
+  pointsUsed    Int          @default(0)   // Points used for discount
+  pointsEarned  Int          @default(0)   // Points earned from this purchase
+  status        OrderStatus  @default(PENDING)
+  paymentMethod String       // Payment method
+  shippingMethod String?     // Shipping method
   createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt // Added updatedAt
- 
+  updatedAt     DateTime     @updatedAt
 }
 
 model OrderItem {
@@ -132,13 +131,8 @@ model OrderItem {
   product         Product  @relation(fields: [productId], references: [id])
   productId       String
   quantity        Int
-  priceAtPurchase Float    // store the price at the time of purchase
+  priceAtPurchase Float    // Price at the time of purchase
 }
-
-
-
-
- 
 
 model Carousel {
   id        String   @id @default(cuid())
@@ -147,31 +141,6 @@ model Carousel {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 model About {
   id        String   @id @default(cuid())
@@ -188,8 +157,6 @@ model Policies {
   updatedAt DateTime @updatedAt
   @@unique([id]) // Enforce single record
 }
-
-
 
 model ContactMessage {
   id         Int      @id @default(autoincrement())

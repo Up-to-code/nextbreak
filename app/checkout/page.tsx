@@ -52,12 +52,9 @@ const CheckoutPage = () => {
   // Calculate points earned (1 point for every 5 SAR)
   const pointsEarned = Math.floor(totalPrice() / 5);
   
-  // Calculate total available points (current + to earn)
-  const totalAvailablePoints = userPoints + pointsEarned;
-  
-  // Calculate discount using available points
-  const discountAmount = pointsChoice === "use" && totalAvailablePoints >= 5
-    ? Math.min(Math.floor(totalAvailablePoints / 5), totalPrice())
+  // Only use points currently in account, not future points
+  const discountAmount = pointsChoice === "use" && userPoints >= 5
+    ? Math.min(Math.floor(userPoints / 5), totalPrice())
     : 0;
     
   const finalTotal = Math.max(0, totalPrice() - discountAmount);
@@ -232,7 +229,7 @@ const CheckoutPage = () => {
             </div>
           </div>
 
-          {/* Points Section - Updated to show both YOUR POINTS and POINTS TO EARN */}
+          {/* Points Section - Only uses current points */}
           {session && (
             <div className="bg-white border-4 border-black p-6">
               <h3 className="text-3xl font-black mb-6 uppercase flex items-center">
@@ -250,14 +247,9 @@ const CheckoutPage = () => {
                   <div className="text-3xl font-black">+{pointsEarned}</div>
                   <div className="text-lg font-black uppercase">POINTS TO EARN</div>
                 </div>
-
-                <div className="bg-gray-100 border-2 border-black p-4 text-center col-span-2">
-                  <div className="text-3xl font-black">{totalAvailablePoints}</div>
-                  <div className="text-lg font-black uppercase">TOTAL AVAILABLE POINTS</div>
-                </div>
               </div>
               
-              {totalAvailablePoints >= 5 ? (
+              {userPoints >= 5 ? (
                 <div className="space-y-4">
                   <button
                     onClick={() => setPointsChoice("use")}
@@ -267,7 +259,7 @@ const CheckoutPage = () => {
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <div className="text-xl uppercase">USE ALL AVAILABLE POINTS</div>
+                        <div className="text-xl uppercase">USE MY POINTS</div>
                         <div className="text-lg">GET {discountAmount.toFixed(2)} SAR OFF</div>
                       </div>
                       {pointsChoice === "use" && (
@@ -287,7 +279,7 @@ const CheckoutPage = () => {
                     <div className="flex items-center justify-between">
                       <div>
                         <div className="text-xl uppercase">SAVE POINTS</div>
-                        <div className="text-lg">KEEP ALL POINTS</div>
+                        <div className="text-lg">SAVE FOR ANOTHER TIME</div>
                       </div>
                       {pointsChoice === "save" && (
                         <div className="bg-black text-white px-3 py-1 text-lg font-black">
@@ -300,8 +292,8 @@ const CheckoutPage = () => {
               ) : (
                 <div className="bg-gray-100 border-4 border-black p-4 text-center">
                   <p className="font-black text-xl uppercase">
-                    {totalAvailablePoints > 0 
-                      ? `You need ${5 - totalAvailablePoints} more points to redeem discount` 
+                    {userPoints > 0 
+                      ? `You need ${5 - userPoints} more points to redeem discount` 
                       : "Earn points with this purchase to redeem later!"}
                   </p>
                 </div>

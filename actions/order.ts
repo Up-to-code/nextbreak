@@ -60,10 +60,6 @@ export async function createOrder(orderData: CreateOrderParams) {
           pointsEarned,
           status: OrderStatus.PENDING,
           paymentMethod: orderData.paymentMethod || "Cash on Delivery",
-          shippingMethod: "standard",
-          originalPrice: orderData.originalPrice,
-          discount: orderData.discount,
-          pointsUsed: orderData.pointsUsed,
            items: {
             create: orderData.items.map((item) => ({
               productId: item.productId,

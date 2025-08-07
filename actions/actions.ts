@@ -296,39 +296,7 @@ export async function getUsers(params: {
     throw new Error('Failed to fetch users');
   }
 }
- export async function getUserData(userId: string) {
-  try {
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        phone: true,
-        role: true,
-        points: true,
-        grade: true,
-        createdAt: true,
-        updatedAt: true,
-        orders: {
-          select: {
-            id: true,
-            totalPrice: true,
-            pointsEarned: true,
-            status: true,
-            createdAt: true
-          }
-        }
-      },
-  
-    });
 
-    return user;
-  } catch (error) {
-    console.error('Error fetching user:', error);
-    throw new Error('Failed to fetch user');
-  }
-}
 export async function updateUserRole(userId: string, role: Role) {
   try {
     await prisma.user.update({
@@ -581,10 +549,7 @@ export interface CreateOrderParams {
   paymentMethod: string;
 }
 
-export async function createOrder(orderData: CreateOrderParams & {
-  discount: number;
-  pointsUsed: number;
-}) {
+export async function createOrder(orderData: CreateOrderParams) {
   try {
     // Validate required fields
     if (!orderData.userId || !orderData.items.length) {
@@ -596,11 +561,11 @@ export async function createOrder(orderData: CreateOrderParams & {
     }
 
     // Check if user exists
-    const user = await prisma.user.findUnique({
+    const userExists = await prisma.user.findUnique({
       where: { id: orderData.userId },
     });
 
-    if (!user) {
+    if (!userExists) {
       return {
         success: false,
         error: "User not found",
@@ -608,11 +573,8 @@ export async function createOrder(orderData: CreateOrderParams & {
       };
     }
 
-    // Calculate final price after discount
-    const finalTotal = orderData.totalPrice - orderData.discount;
-    
-    // Calculate points earned based on FINAL amount paid
-    const pointsEarned = Math.floor(finalTotal / 5);
+    // Calculate points earned (1 point per 5 SAR spent)
+    const pointsEarned = Math.floor(orderData.totalPrice / 5);
 
     // Create order in a transaction
     const newOrder = await prisma.$transaction(async (tx) => {
@@ -620,10 +582,7 @@ export async function createOrder(orderData: CreateOrderParams & {
       const order = await tx.order.create({
         data: {
           userId: orderData.userId,
-          totalPrice: finalTotal, // Store final price after discount
-          originalPrice: orderData.totalPrice, // Store original price
-          discount: orderData.discount,
-          pointsUsed: orderData.pointsUsed,
+          totalPrice: orderData.totalPrice,
           pointsEarned,
           status: OrderStatus.PENDING,
           paymentMethod: orderData.paymentMethod,
@@ -650,17 +609,10 @@ export async function createOrder(orderData: CreateOrderParams & {
         )
       );
       
-      // Update user's points: 
-      // - Subtract points used for discount
-      // - Add points earned from purchase
+      // Update user's total points
       await tx.user.update({
         where: { id: orderData.userId },
-        data: { 
-          points: {
-            decrement: orderData.pointsUsed,
-            increment: pointsEarned
-          }
-        }
+        data: { points: { increment: pointsEarned } }
       });
 
       return order;
@@ -699,5 +651,38 @@ export async function updateUserPoints(userId: string, points: number) {
   } catch (error) {
     console.error('Error updating user points:', error);
     throw new Error('Failed to update user points');
+  }
+}
+export async function getUserData(userId: string) {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        role: true,
+        points: true,
+        grade: true,
+        createdAt: true,
+        updatedAt: true,
+        orders: {
+          select: {
+            id: true,
+            totalPrice: true,
+            pointsEarned: true,
+            status: true,
+            createdAt: true
+          }
+        }
+      },
+  
+    });
+
+    return user;
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    throw new Error('Failed to fetch user');
   }
 }

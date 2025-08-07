@@ -311,7 +311,7 @@ export default function UserManagement() {
                         <div className="mt-3">
                           <p className="font-bold mb-1">Points Earned:</p>
                           <p>
-                            {order.pointsEarned || 0} points (1 point per 5{" "}
+                            {order.pointsEarned || 0} points (5 point per 1{" "}
                             <Image
                               width={20}
                               height={20}

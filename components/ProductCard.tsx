@@ -14,7 +14,7 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({
   title = "SKELETON 01",
   price = "$29",
-  points = 150,
+  points = 0,
   image = "💀",
   onAddToCart,
   onBuyNow

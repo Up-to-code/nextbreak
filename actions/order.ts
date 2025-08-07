@@ -47,8 +47,8 @@ export async function createOrder(orderData: CreateOrderParams) {
       };
     }
 
-    // Calculate points earned (1 point per 5 SAR spent)
-    const pointsEarned = Math.floor(orderData.totalPrice / 5);
+    // Calculate points earned (5 point per 1 SAR spent)
+    const pointsEarned = Math.floor(orderData.totalPrice * 5);
 
     // Create order in a transaction
     const newOrder = await prisma.$transaction(async (tx) => {

@@ -17,7 +17,7 @@ export default function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useCartStore()
   
   // Calculate points (5 points per SAR)
-  const points = Math.round(product.price / 5)
+  const points = Math.round(product.price * 5)
 
   return (
     <div className="max-w-sm border-4 border-black rounded-none bg-white transition-all hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1">

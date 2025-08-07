@@ -37,6 +37,12 @@ const CheckoutPage = () => {
         try {
           const user = await getUserData(session.user.id);
           setUserPoints(user?.points || 0);
+          // Auto-select points usage if eligible
+            if (user?.points) {
+          if (user?.points >= 250) {
+            setPointsChoice("use");
+          }
+          } 
         } catch (error) {
           console.error('Failed to fetch user points', error);
           setUserPoints(0);
@@ -49,16 +55,34 @@ const CheckoutPage = () => {
     fetchUserPoints();
   }, [session]);
 
-  // Calculate points earned (1 point for every 5 SAR)
-  const pointsEarned = Math.floor(totalPrice() / 5);
+  // Calculate points earned (1 SAR = 5 points)
+  const pointsEarned = Math.floor(totalPrice() * 5);
   
-  // Only use points currently in account, not future points
-  const discountAmount = pointsChoice === "use" && userPoints >= 5
-    ? Math.min(Math.floor(userPoints / 5), totalPrice())
-    : 0;
+  // Discount calculation with requirements:
+  // 1. Minimum 250 points required to use
+  // 2. Discount capped at 25% of order value
+  let discountAmount = 0;
+  let pointsUsed = 0;
+  
+  if (pointsChoice === "use" && userPoints >= 250) {
+    // Calculate maximum discount from points (5 points = 1 SAR)
+    const maxDiscountFromPoints = Math.floor(userPoints / 5);
     
+    // Calculate 25% cap of order total
+    const maxDiscountByPercentage = totalPrice() * 0.25;
+    
+    // Apply both caps (points discount and 25% limit)
+    discountAmount = Math.min(
+      maxDiscountFromPoints,
+      maxDiscountByPercentage,
+      totalPrice()
+    );
+    
+    // Calculate points used (1 SAR discount = 5 points)
+    pointsUsed = discountAmount * 5;
+  }
+  
   const finalTotal = Math.max(0, totalPrice() - discountAmount);
-  const pointsUsed = discountAmount * 5;
 
   const handleSubmitOrder = async () => {
     if (!session?.user?.id) {
@@ -83,7 +107,7 @@ const CheckoutPage = () => {
         items: orderItems,
         totalPrice: finalTotal,
         discount: discountAmount,
-        pointsUsed: pointsChoice === "use" ? pointsUsed : 0,
+        pointsUsed: pointsUsed,
         pointsEarned,
         paymentMethod: "Cash on Delivery",
         originalPrice: totalPrice(),
@@ -229,7 +253,7 @@ const CheckoutPage = () => {
             </div>
           </div>
 
-          {/* Points Section - Only uses current points */}
+          {/* Points Section */}
           {session && (
             <div className="bg-white border-4 border-black p-6">
               <h3 className="text-3xl font-black mb-6 uppercase flex items-center">
@@ -249,7 +273,7 @@ const CheckoutPage = () => {
                 </div>
               </div>
               
-              {userPoints >= 5 ? (
+              {userPoints >= 250 ? (
                 <div className="space-y-4">
                   <button
                     onClick={() => setPointsChoice("use")}
@@ -260,7 +284,14 @@ const CheckoutPage = () => {
                     <div className="flex items-center justify-between">
                       <div>
                         <div className="text-xl uppercase">USE MY POINTS</div>
-                        <div className="text-lg">GET {discountAmount.toFixed(2)} SAR OFF</div>
+                        <div className="text-lg">
+                          GET {discountAmount.toFixed(2)} SAR OFF 
+                          {totalPrice() > 0 && (
+                            <span>
+                              {" "}(MAX 25% = {Math.floor(totalPrice() * 0.25)} SAR)
+                            </span>
+                          )}
+                        </div>
                       </div>
                       {pointsChoice === "use" && (
                         <div className="bg-black text-white px-3 py-1 text-lg font-black">
@@ -293,7 +324,7 @@ const CheckoutPage = () => {
                 <div className="bg-gray-100 border-4 border-black p-4 text-center">
                   <p className="font-black text-xl uppercase">
                     {userPoints > 0 
-                      ? `You need ${5 - userPoints} more points to redeem discount` 
+                      ? `Minimum 250 points required to redeem (need ${250 - userPoints} more)` 
                       : "Earn points with this purchase to redeem later!"}
                   </p>
                 </div>

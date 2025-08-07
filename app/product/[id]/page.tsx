@@ -111,7 +111,7 @@ export default function NeoBrutalProductPage({
   const { addToCart } = useCartStore();
 
   // Calculate points earned for this product
-  const pointsEarned = Math.floor((product?.price || 0) / 5) * quantity;
+  const pointsEarned = Math.floor((product?.price || 0) * 5) * quantity;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -429,7 +429,7 @@ export default function NeoBrutalProductPage({
                   Earn <span className="text-yellow-700">{pointsEarned} points</span>
                 </p>
                 <p className="text-sm text-gray-600">
-                  (1 point for every 5  <Image
+                  (5 point for every 1  <Image
                    width={20}
                    height={20}
                    src={"/SAR.svg"}

@@ -8,6 +8,7 @@ import { FiSearch, FiX, FiFilter } from 'react-icons/fi';
 import { Suspense, useEffect, useState } from 'react';
 import ProductCardSkeleton from "./ProductCardSkeleton";
 import ProductsLoading from './loading';
+import ProductCardM from './ProductCardM';
 
 interface Product {
   id: string;
@@ -152,7 +153,7 @@ export  function ProductsContent() {
           
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {products.map(product => (
-              <ProductCard 
+              <ProductCardM 
                 key={product.id} 
                 product={product} 
        

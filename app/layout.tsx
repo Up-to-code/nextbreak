@@ -4,6 +4,7 @@ import "./globals.css";
 import Footer from "@/components/layout/Footer";
 import NavBar from "@/components/layout/NavBar";
 import Providers from "@/components/layout/providers";
+import { Analytics } from '@vercel/analytics/next';
 
 export const metadata: Metadata = {
   title: {
@@ -61,6 +62,7 @@ export default function RootLayout({
           <main className="min-h-screen  mx-auto max-w-screen-2xl">
             <NavBar />
             {children}
+           <Analytics/>
           </main>
           <Footer />
         </body>

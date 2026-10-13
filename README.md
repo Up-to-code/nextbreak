@@ -1,3 +1,44 @@
+# Nextbreak
+
+Discover the best products at NextBreak. Shop our curated collection of high-quality items with fast delivery and excellent customer service.
+
+[Source](https://github.com/Up-to-code/nextbreak) · [Issues](https://github.com/Up-to-code/nextbreak/issues) · [Project directory](https://github.com/qentrah/.github/blob/main/profile/PROJECTS.md)
+
+## Technology
+
+Next.js, React, TypeScript.
+
+## Get started
+
+```sh
+git clone https://github.com/Up-to-code/nextbreak.git
+cd nextbreak
+```
+
+Requires Node.js and pnpm.
+
+```sh
+pnpm install
+pnpm dev
+```
+
+## Available commands
+
+| Command | Purpose |
+| --- | --- |
+| `pnpm dev` | Development server |
+| `pnpm start` | Start the configured application |
+| `pnpm build` | Build the project |
+| `pnpm lint` | Check lint rules |
+
+## Project structure
+
+- [`app`](./app)
+- [`components`](./components)
+
+<details>
+<summary>Existing setup notes and credits</summary>
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
@@ -34,3 +75,5 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+</details>
